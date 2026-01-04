@@ -130,7 +130,7 @@ body {
 .date-picker {
     margin-top: var(--spacing-sm);
     padding: 10px 16px;
-    border: 1px solid #C1E1C1; /* Lighter mint border */
+    border: 1px solid var(--mint); /* Lighter mint border */
     border-radius: var(--radius-md);
     background: rgba(255, 253, 208, 0.5); /* Cream with low opacity for subtle look */
     color: #4A4A4A; /* Softer gray text instead of dark green */
@@ -151,7 +151,7 @@ body {
 }
 
 .date-picker:hover {
-    border-color: #9DC183; /* Sage green on hover */
+    border-color: var(--sage-green); /* Sage green on hover */
     background: rgba(255, 253, 208, 0.7); /* Slightly more opaque on hover */
     box-shadow: 0 3px 10px var(--shadow);
     transform: translateY(-1px);
@@ -159,7 +159,7 @@ body {
 
 .date-picker:focus {
     outline: none;
-    border-color: #9DC183; /* Sage green on focus */
+    border-color: var(--sage-green); /* Sage green on focus */
     background: rgba(255, 253, 208, 0.8); /* Slightly more visible on focus */
     box-shadow: 0 0 0 3px rgba(157, 193, 131, 0.2); /* Lighter focus ring */
 }
@@ -1161,7 +1161,7 @@ body {
 .flatpickr-input {
     margin-top: var(--spacing-sm);
     padding: 10px 16px;
-    border: 1px solid #C1E1C1; /* Lighter mint border */
+    border: 1px solid var(--mint); /* Lighter mint border */
     border-radius: var(--radius-md);
     background: rgba(255, 253, 208, 0.5); /* Cream with low opacity for subtle look */
     color: #4A4A4A; /* Softer gray text */
@@ -1174,7 +1174,7 @@ body {
 }
 
 .flatpickr-input:hover {
-    border-color: #9DC183; /* Sage green on hover */
+    border-color: var(--sage-green); /* Sage green on hover */
     background: rgba(255, 253, 208, 0.7); /* Slightly more opaque on hover */
     box-shadow: 0 3px 10px var(--shadow);
     transform: translateY(-1px);
@@ -1182,7 +1182,7 @@ body {
 
 .flatpickr-input:focus {
     outline: none;
-    border-color: #9DC183; /* Sage green on focus */
+    border-color: var(--sage-green); /* Sage green on focus */
     background: rgba(255, 253, 208, 0.8); /* Slightly more visible on focus */
     box-shadow: 0 0 0 3px rgba(157, 193, 131, 0.2); /* Lighter focus ring */
 }
