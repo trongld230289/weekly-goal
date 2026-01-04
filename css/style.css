@@ -75,6 +75,8 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
+    position: relative;
+    z-index: 10; /* Ensure content is above decorations */
 }
 
 /* Header */
@@ -126,20 +128,30 @@ body {
 
 .date-picker {
     margin-top: var(--spacing-sm);
-    padding: 8px 16px;
+    padding: 10px 16px;
     border: 2px solid var(--forest-green);
     border-radius: var(--radius-md);
     background: white;
-    color: var(--text-primary);
+    color: var(--forest-green);
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 6px var(--shadow);
+}
+
+.date-picker::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px;
+    filter: invert(0.4) sepia(1) saturate(3) hue-rotate(80deg);
 }
 
 .date-picker:hover {
     border-color: var(--sage-green);
-    box-shadow: 0 2px 8px var(--shadow);
+    box-shadow: 0 3px 10px var(--shadow);
+    transform: translateY(-1px);
 }
 
 .date-picker:focus {
@@ -724,34 +736,71 @@ body {
     display: flex;
     gap: var(--spacing-md);
     margin-top: var(--spacing-md);
+    justify-content: flex-end;
 }
 
 .save-btn,
 .delete-btn {
-    flex: 1;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 12px 24px;
     border: none;
     border-radius: var(--radius-md);
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-size: 14px;
 }
 
 .save-btn {
-    background: linear-gradient(135deg, var(--sage-green), var(--mint));
+    background: linear-gradient(135deg, var(--forest-green), var(--sage-green));
     color: white;
+    box-shadow: 0 2px 10px rgba(45, 90, 39, 0.3);
+    order: 3; /* Place Save button on the right */
 }
 
 .delete-btn {
-    background: linear-gradient(135deg, var(--sleep), #FF8787);
-    color: white;
+    background: transparent;
+    color: #E74C3C;
+    border: 2px solid #E74C3C;
+    box-shadow: none;
+    order: 1; /* Place Delete button on the left */
 }
 
 .save-btn:hover,
 .delete-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px var(--shadow);
+}
+
+.save-btn:hover {
+    box-shadow: 0 4px 15px rgba(45, 90, 39, 0.4);
+}
+
+.delete-btn:hover {
+    background: rgba(231, 76, 60, 0.1);
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
+}
+
+/* Close modal buttons (Cancel style) */
+.close-copy-modal,
+.cancel-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    order: 2; /* Place Cancel in the middle */
+}
+
+.close-copy-modal:hover,
+.cancel-btn:hover {
+    background: rgba(157, 193, 131, 0.1);
+    border-color: var(--sage-green);
+    transform: translateY(-2px);
 }
 
 /* Responsive Design */
@@ -922,7 +971,7 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0;
+    z-index: 0; /* Behind all content */
     overflow: hidden;
 }
 
@@ -1359,7 +1408,8 @@ body {
 .pine-tree {
     position: fixed;
     bottom: 0;
-    z-index: 1;
+    z-index: -1; /* Behind content */
+    opacity: 0.85; /* Slightly transparent so they don't dominate */
 }
 
 .pine-tree-small {
@@ -1461,10 +1511,11 @@ body {
 
 .camping-tent {
     position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
+    bottom: 20px; /* Lower to footer area */
+    right: 10%; /* Move to right margin area */
+    transform: none; /* Remove center transform */
+    z-index: -1; /* Behind content */
+    opacity: 0.8;
 }
 
 .tent-main {
@@ -1512,10 +1563,11 @@ body {
 
 .campfire {
     position: fixed;
-    bottom: 60px;
-    left: calc(50% + 100px);
-    transform: translateX(-50%);
-    z-index: 2;
+    bottom: 20px; /* Lower to footer area */
+    left: 10%; /* Move to left margin area */
+    transform: none; /* Remove offset transform */
+    z-index: -1; /* Behind content */
+    opacity: 0.8;
 }
 
 .fire-base {
