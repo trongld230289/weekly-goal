@@ -131,7 +131,7 @@ body {
     padding: 10px 16px;
     border: 2px solid var(--forest-green);
     border-radius: var(--radius-md);
-    background: white;
+    background: var(--mint);
     color: var(--forest-green);
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
@@ -139,6 +139,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 6px var(--shadow);
+    color-scheme: light;
 }
 
 .date-picker::-webkit-calendar-picker-indicator {
@@ -150,6 +151,7 @@ body {
 
 .date-picker:hover {
     border-color: var(--sage-green);
+    background: var(--pastel-mint);
     box-shadow: 0 3px 10px var(--shadow);
     transform: translateY(-1px);
 }
@@ -157,7 +159,34 @@ body {
 .date-picker:focus {
     outline: none;
     border-color: var(--forest-green);
+    background: var(--pastel-mint);
     box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.2);
+}
+
+/* Style the calendar dropdown for Webkit browsers (Chrome, Safari, Edge) */
+.date-picker::-webkit-datetime-edit {
+    padding: 0;
+}
+
+.date-picker::-webkit-datetime-edit-fields-wrapper {
+    background: transparent;
+}
+
+.date-picker::-webkit-datetime-edit-text,
+.date-picker::-webkit-datetime-edit-month-field,
+.date-picker::-webkit-datetime-edit-day-field,
+.date-picker::-webkit-datetime-edit-year-field {
+    color: var(--forest-green);
+    padding: 2px;
+}
+
+.date-picker::-webkit-datetime-edit-month-field:focus,
+.date-picker::-webkit-datetime-edit-day-field:focus,
+.date-picker::-webkit-datetime-edit-year-field:focus {
+    background: var(--sage-green);
+    color: white;
+    border-radius: 4px;
+    outline: none;
 }
 
 /* Main Grid Layout */
