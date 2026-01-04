@@ -367,10 +367,10 @@ const App = {
             
             item.innerHTML = `
                 <input type="checkbox" ${goal.completed ? 'checked' : ''} 
-                    onchange="App.toggleGoal('${type}', ${goal.id})">
+                    onchange="App.toggleGoal('${type}', '${goal.id}')">
                 <input type="text" class="goal-text" value="${this.escapeHtml(goal.text)}"
-                    onchange="App.updateGoalText('${type}', ${goal.id}, this.value)">
-                <button class="delete-goal" onclick="App.deleteGoal('${type}', ${goal.id})">×</button>
+                    onchange="App.updateGoalText('${type}', '${goal.id}', this.value)">
+                <button class="delete-goal" onclick="App.deleteGoal('${type}', '${goal.id}')">×</button>
             `;
             
             list.appendChild(item);
