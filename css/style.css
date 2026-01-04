@@ -716,16 +716,23 @@ body {
 }
 
 .close-modal {
-    background: transparent;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f5f5f5;
     border: none;
-    font-size: 28px;
+    font-size: 24px;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .close-modal:hover {
-    color: var(--sleep);
+    background: #e0e0e0;
     transform: rotate(90deg);
 }
 
@@ -809,8 +816,29 @@ body {
     box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
 }
 
-/* Close modal buttons (Cancel style) */
-.close-copy-modal,
+/* Close modal buttons in header - X button style */
+.close-copy-modal {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f5f5f5;
+    border: none;
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.close-copy-modal:hover {
+    background: #e0e0e0;
+    transform: rotate(90deg);
+}
+
+/* Cancel button style (removed from edit modal, kept for reference) */
 .cancel-btn {
     background: transparent;
     color: var(--text-secondary);
@@ -825,7 +853,6 @@ body {
     order: 2; /* Place Cancel in the middle */
 }
 
-.close-copy-modal:hover,
 .cancel-btn:hover {
     background: rgba(157, 193, 131, 0.1);
     border-color: var(--sage-green);
@@ -1631,14 +1658,29 @@ body {
 }
 
 /* ===================================
-   🌲 EMOJI PINE TREES
+   🌲 SVG PINE TREES - 3D Style with Gradient
    =================================== */
 
-.tree-emoji {
+.pine-tree {
     position: fixed;
     bottom: 0;
     z-index: 1; /* Above background but below content */
-    opacity: 0.9;
     pointer-events: none;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+.pine-tree.tree-small {
+    width: 50px;
+    height: 70px;
+}
+
+.pine-tree.tree-medium {
+    width: 80px;
+    height: 110px;
+}
+
+.pine-tree.tree-large {
+    width: 120px;
+    height: 160px;
 }
 
