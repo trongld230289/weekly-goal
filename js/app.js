@@ -24,8 +24,11 @@ const App = {
     init() {
         console.log('🌸 Initializing Weekly Planner...');
         
-        // Initialize modules
-        Theme.init();
+        // Load saved week or use current week
+        const savedWeek = Storage.load(Storage.KEYS.CURRENT_WEEK);
+        if (savedWeek) {
+            this.currentWeek = new Date(savedWeek);
+        }
         
         // Load saved data
         this.loadData();
@@ -47,16 +50,20 @@ const App = {
         console.log('✨ Weekly Planner ready!');
     },
 
-    // Load data from localStorage
+    // Load data from localStorage (week-specific)
     loadData() {
-        this.schedule = Storage.load(Storage.KEYS.SCHEDULE, {});
-        this.workGoals = Storage.load(Storage.KEYS.WORK_GOALS, []);
-        this.meGoals = Storage.load(Storage.KEYS.ME_GOALS, []);
-        
-        const savedWeek = Storage.load(Storage.KEYS.CURRENT_WEEK);
-        if (savedWeek) {
-            this.currentWeek = new Date(savedWeek);
-        }
+        const weekKey = this.getWeekKey(this.currentWeek);
+        this.schedule = Storage.load(`${Storage.KEYS.SCHEDULE}_${weekKey}`, {});
+        this.workGoals = Storage.load(`${Storage.KEYS.WORK_GOALS}_${weekKey}`, []);
+        this.meGoals = Storage.load(`${Storage.KEYS.ME_GOALS}_${weekKey}`, []);
+    },
+    
+    // Save data to localStorage (week-specific)
+    saveData() {
+        const weekKey = this.getWeekKey(this.currentWeek);
+        Storage.save(`${Storage.KEYS.SCHEDULE}_${weekKey}`, this.schedule);
+        Storage.save(`${Storage.KEYS.WORK_GOALS}_${weekKey}`, this.workGoals);
+        Storage.save(`${Storage.KEYS.ME_GOALS}_${weekKey}`, this.meGoals);
     },
 
     // Generate schedule grid in Gantt chart format
@@ -321,7 +328,7 @@ const App = {
         }
 
         // Save and refresh
-        Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
+        this.saveData();
         this.saveWeekHistory(); // Save to week history for copy feature
         this.generateScheduleGrid();
         this.closeEditModal();
@@ -337,7 +344,7 @@ const App = {
         delete this.schedule[cellKey];
         Notifications.cancelReminder(day, time);
 
-        Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
+        this.saveData();
         this.generateScheduleGrid();
         this.closeEditModal();
     },
@@ -360,10 +367,10 @@ const App = {
             
             item.innerHTML = `
                 <input type="checkbox" ${goal.completed ? 'checked' : ''} 
-                    onchange="App.toggleGoal('${type}', ${goal.id})">
+                    onchange="App.toggleGoal('${type}', '${goal.id}')">
                 <input type="text" class="goal-text" value="${this.escapeHtml(goal.text)}"
-                    onchange="App.updateGoalText('${type}', ${goal.id}, this.value)">
-                <button class="delete-goal" onclick="App.deleteGoal('${type}', ${goal.id})">×</button>
+                    onchange="App.updateGoalText('${type}', '${goal.id}', this.value)">
+                <button class="delete-goal" onclick="App.deleteGoal('${type}', '${goal.id}')">×</button>
             `;
             
             list.appendChild(item);
@@ -380,10 +387,10 @@ const App = {
 
         if (type === 'work') {
             this.workGoals.push(goal);
-            Storage.save(Storage.KEYS.WORK_GOALS, this.workGoals);
+            this.saveData();
         } else {
             this.meGoals.push(goal);
-            Storage.save(Storage.KEYS.ME_GOALS, this.meGoals);
+            this.saveData();
         }
 
         this.renderGoals();
@@ -406,11 +413,7 @@ const App = {
         if (goal) {
             goal.completed = !goal.completed;
             
-            if (type === 'work') {
-                Storage.save(Storage.KEYS.WORK_GOALS, this.workGoals);
-            } else {
-                Storage.save(Storage.KEYS.ME_GOALS, this.meGoals);
-            }
+            this.saveData();
 
             this.renderGoals();
 
@@ -429,11 +432,7 @@ const App = {
         if (goal) {
             goal.text = newText;
             
-            if (type === 'work') {
-                Storage.save(Storage.KEYS.WORK_GOALS, this.workGoals);
-            } else {
-                Storage.save(Storage.KEYS.ME_GOALS, this.meGoals);
-            }
+            this.saveData();
         }
     },
 
@@ -441,28 +440,30 @@ const App = {
     deleteGoal(type, id) {
         if (type === 'work') {
             this.workGoals = this.workGoals.filter(g => g.id !== id);
-            Storage.save(Storage.KEYS.WORK_GOALS, this.workGoals);
+            this.saveData();
         } else {
             this.meGoals = this.meGoals.filter(g => g.id !== id);
-            Storage.save(Storage.KEYS.ME_GOALS, this.meGoals);
+            this.saveData();
         }
 
         this.renderGoals();
     },
 
-    // Load notes and retro
+    // Load notes and retro (week-specific)
     loadNotes() {
-        document.getElementById('retroText').value = Storage.load(Storage.KEYS.RETRO, '');
-        document.getElementById('noteText').value = Storage.load(Storage.KEYS.NOTE, '');
+        const weekKey = this.getWeekKey(this.currentWeek);
+        document.getElementById('retroText').value = Storage.load(`${Storage.KEYS.RETRO}_${weekKey}`, '');
+        document.getElementById('noteText').value = Storage.load(`${Storage.KEYS.NOTE}_${weekKey}`, '');
     },
 
-    // Save notes
+    // Save notes (week-specific)
     saveNotes() {
+        const weekKey = this.getWeekKey(this.currentWeek);
         const retro = document.getElementById('retroText').value;
         const note = document.getElementById('noteText').value;
         
-        Storage.save(Storage.KEYS.RETRO, retro);
-        Storage.save(Storage.KEYS.NOTE, note);
+        Storage.save(`${Storage.KEYS.RETRO}_${weekKey}`, retro);
+        Storage.save(`${Storage.KEYS.NOTE}_${weekKey}`, note);
     },
 
     // Update week display
@@ -497,26 +498,37 @@ const App = {
 
     // Navigate to previous week
     prevWeek() {
+        this.saveData(); // Save current week data
         this.saveWeekHistory(); // Save current week before switching
         this.currentWeek.setDate(this.currentWeek.getDate() - 7);
+        this.updateWeekDisplay();
         this.loadData(); // Load data for the new week
         this.generateScheduleGrid();
-        this.updateWeekDisplay();
+        this.renderGoals();
+        this.loadNotes();
     },
 
     // Navigate to next week
     nextWeek() {
+        this.saveData(); // Save current week data
         this.saveWeekHistory(); // Save current week before switching
         this.currentWeek.setDate(this.currentWeek.getDate() + 7);
+        this.updateWeekDisplay();
         this.loadData(); // Load data for the new week
         this.generateScheduleGrid();
-        this.updateWeekDisplay();
+        this.renderGoals();
+        this.loadNotes();
     },
 
     // Handle date picker change
     onDateChange(date) {
+        this.saveData(); // Save current week data
         this.currentWeek = new Date(date);
         this.updateWeekDisplay();
+        this.loadData(); // Load new week data
+        this.generateScheduleGrid();
+        this.renderGoals();
+        this.loadNotes();
     },
 
     // Show confetti animation
@@ -713,7 +725,7 @@ const App = {
                         Notifications.scheduleReminder(newDay, newTime, this.schedule[newKey].text, this.schedule[newKey].category);
                     }
                     
-                    Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
+                    this.saveData();
                     this.saveWeekHistory();
                     this.generateScheduleGrid();
                 } else if (this.schedule[newKey]) {
@@ -832,7 +844,7 @@ const App = {
                     }
                 }
                 
-                Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
+                this.saveData();
                 this.saveWeekHistory();
                 this.generateScheduleGrid();
                 
@@ -910,7 +922,7 @@ const App = {
         if (scheduleData) {
             // Copy the schedule to current week
             this.schedule = JSON.parse(JSON.stringify(scheduleData));
-            Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
+            this.saveData();
             this.saveWeekHistory();
             this.generateScheduleGrid();
             this.closeCopyWeekModal();

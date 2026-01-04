@@ -10,21 +10,19 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Dark Mode Toggle -->
-    <div class="theme-toggle">
-        <button id="themeToggle" class="theme-btn" aria-label="Toggle dark mode">
-            <span class="theme-icon">🌙</span>
-        </button>
-    </div>
-
     <!-- Animated Background -->
     <div class="animated-background">
         <!-- Light mode decorations -->
         <div class="cloud cloud-1"></div>
         <div class="cloud cloud-2"></div>
         <div class="cloud cloud-3"></div>
+        <div class="cloud cloud-4"></div>
+        <div class="cloud cloud-5"></div>
         <div class="bird bird-1">🦋</div>
         <div class="bird bird-2">🦋</div>
+        <div class="bird bird-3">🦋</div>
+        <div class="bird bird-4">🦋</div>
+        <div class="bird bird-5">🦋</div>
         <div class="flower flower-1">🌸</div>
         <div class="flower flower-2">🌼</div>
         <div class="flower flower-3">🌺</div>
@@ -44,21 +42,45 @@
         <div class="falling-leaf falling-leaf-4">🍃</div>
         <div class="falling-leaf falling-leaf-5">🍂</div>
         
-        <!-- Pine trees -->
-        <div class="pine-tree pine-tree-1">🌲</div>
-        <div class="pine-tree pine-tree-2">🌲</div>
-        
         <!-- Decorative vines -->
         <div class="vine vine-1"></div>
         <div class="vine vine-2"></div>
         
-        <!-- Dark mode decorations -->
-        <div class="star star-1">⭐</div>
-        <div class="star star-2">⭐</div>
-        <div class="star star-3">⭐</div>
-        <div class="star star-4">⭐</div>
-        <div class="star star-5">⭐</div>
-        <div class="moon">🌙</div>
+        <!-- CSS Pine Trees -->
+        <div class="pine-tree" style="left: 5%; bottom: 0;">
+            <div class="pine-tree-large"></div>
+        </div>
+        <div class="pine-tree" style="left: 15%; bottom: 0;">
+            <div class="pine-tree-medium"></div>
+        </div>
+        <div class="pine-tree" style="left: 25%; bottom: 0;">
+            <div class="pine-tree-small"></div>
+        </div>
+        <div class="pine-tree" style="right: 5%; bottom: 0;">
+            <div class="pine-tree-large"></div>
+        </div>
+        <div class="pine-tree" style="right: 15%; bottom: 0;">
+            <div class="pine-tree-medium"></div>
+        </div>
+        <div class="pine-tree" style="right: 25%; bottom: 0;">
+            <div class="pine-tree-small"></div>
+        </div>
+        
+        <!-- Camping Tent -->
+        <div class="camping-tent">
+            <div class="tent-main">
+                <div class="tent-flag"></div>
+            </div>
+        </div>
+        
+        <!-- Campfire -->
+        <div class="campfire">
+            <div class="fire-base">
+                <div class="fire-log"></div>
+                <div class="fire-log"></div>
+                <div class="fire-flame"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Main Container -->
@@ -146,7 +168,8 @@
                 <span class="legend-item" data-category="sleep">😴 Sleep</span>
                 <span class="legend-item" data-category="meeting">👥 Meeting</span>
                 <span class="legend-item" data-category="meal">🍽️ Meal</span>
-                <span class="legend-item" data-category="other">📌 Other</span>
+                <span class="legend-item" data-category="reading">📚 Reading</span>
+                <span class="legend-item" data-category="working">💼 Working</span>
             </div>
         </div>
     </div>
@@ -182,7 +205,8 @@
                     <option value="sleep">😴 Sleep</option>
                     <option value="meeting">👥 Meeting</option>
                     <option value="meal">🍽️ Meal</option>
-                    <option value="other">📌 Other</option>
+                    <option value="reading">📚 Reading</option>
+                    <option value="working">💼 Working</option>
                 </select>
                 
                 <label>
@@ -220,7 +244,6 @@
 
     <script src="js/storage.js"></script>
     <script src="js/notifications.js"></script>
-    <script src="js/theme.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
