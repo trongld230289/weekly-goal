@@ -292,7 +292,7 @@ const App = {
         const cellData = this.schedule[cellKey] || { text: '', category: '', reminder: false, duration: 60 };
         
         // Check if this is edit mode (activity exists) or add mode (new activity)
-        const isEditMode = this.schedule[cellKey] && this.schedule[cellKey].text;
+        const isEditMode = cellData.text && cellData.text.trim();
 
         document.getElementById('activityInput').value = cellData.text || '';
         document.getElementById('categorySelect').value = cellData.category || '';

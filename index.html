@@ -52,7 +52,8 @@
         <div class="vine vine-2"></div>
         
         <!-- Pine Trees - SVG with gradient for 3D effect -->
-        <svg class="pine-tree tree-large" style="left: 3%; bottom: 0;" viewBox="0 0 100 140">
+        <!-- Shared SVG definitions for gradients -->
+        <svg style="position: absolute; width: 0; height: 0;">
             <defs>
                 <linearGradient id="treeGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" style="stop-color:#2D5A27;stop-opacity:1" />
@@ -60,6 +61,9 @@
                     <stop offset="100%" style="stop-color:#2D5A27;stop-opacity:1" />
                 </linearGradient>
             </defs>
+        </svg>
+        
+        <svg class="pine-tree tree-large" style="left: 3%; bottom: 0;" viewBox="0 0 100 140">
             <polygon points="50,10 15,50 85,50" fill="url(#treeGrad1)" opacity="0.9"/>
             <polygon points="50,30 10,70 90,70" fill="url(#treeGrad1)" opacity="0.85"/>
             <polygon points="50,50 5,90 95,90" fill="url(#treeGrad1)" opacity="0.8"/>
