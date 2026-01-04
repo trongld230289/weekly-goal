@@ -990,6 +990,176 @@ body {
 }
 
 /* ===================================
+   📅 FLATPICKR CUSTOM STYLING - NATURE FOREST THEME
+   =================================== */
+
+/* Calendar container */
+.flatpickr-calendar {
+    background: #FFFDD0 !important; /* cream */
+    border: 2px solid #9DC183 !important; /* sage green */
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(45, 90, 39, 0.15) !important;
+    font-family: 'Nunito', sans-serif !important;
+}
+
+.flatpickr-calendar.open {
+    z-index: 3000 !important;
+}
+
+/* Header - month/year navigation */
+.flatpickr-months {
+    background: linear-gradient(135deg, #9DC183, #C1E1C1) !important;
+    border-radius: 14px 14px 0 0 !important;
+    padding: 10px !important;
+}
+
+.flatpickr-month {
+    color: #2D5A27 !important; /* forest green text */
+}
+
+.flatpickr-current-month {
+    color: #2D5A27 !important;
+}
+
+.flatpickr-current-month input.cur-year {
+    color: #2D5A27 !important;
+    font-weight: 700 !important;
+}
+
+.flatpickr-monthDropdown-months {
+    background: #FFFDD0 !important;
+    color: #2D5A27 !important;
+    font-weight: 600 !important;
+}
+
+/* Navigation arrows */
+.flatpickr-prev-month,
+.flatpickr-next-month {
+    color: #2D5A27 !important;
+    fill: #2D5A27 !important;
+}
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+    fill: #2D5A27 !important;
+}
+
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+    color: #fff !important;
+    background: #2D5A27 !important;
+    border-radius: 50% !important;
+}
+
+.flatpickr-prev-month:hover svg,
+.flatpickr-next-month:hover svg {
+    fill: #fff !important;
+}
+
+/* Weekday headers */
+.flatpickr-weekdays {
+    background: #C1E1C1 !important; /* mint */
+}
+
+.flatpickr-weekday {
+    color: #2D5A27 !important;
+    font-weight: 700 !important;
+}
+
+/* Day cells */
+.flatpickr-day {
+    color: #2D5A27 !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+.flatpickr-day:hover {
+    background: #C1E1C1 !important;
+    border-color: #9DC183 !important;
+}
+
+/* Selected day */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+    background: #2D5A27 !important;
+    border-color: #2D5A27 !important;
+    color: #fff !important;
+}
+
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover {
+    background: #2D5A27 !important;
+    border-color: #2D5A27 !important;
+    color: #fff !important;
+}
+
+/* Today */
+.flatpickr-day.today {
+    border: 2px solid #9DC183 !important;
+    font-weight: 700 !important;
+}
+
+.flatpickr-day.today:hover {
+    background: #C1E1C1 !important;
+    border-color: #9DC183 !important;
+}
+
+/* Disabled/other month days */
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+    color: #9DC183 !important;
+    opacity: 0.5 !important;
+}
+
+.flatpickr-day.disabled,
+.flatpickr-day.disabled:hover {
+    color: #9DC183 !important;
+    opacity: 0.3 !important;
+    background: transparent !important;
+}
+
+/* Week numbers */
+.flatpickr-weekwrapper .flatpickr-weeks {
+    box-shadow: none !important;
+}
+
+.flatpickr-weekwrapper span.flatpickr-day {
+    color: #2D5A27 !important;
+}
+
+/* Input field styling when Flatpickr is active */
+.flatpickr-input {
+    margin-top: var(--spacing-sm);
+    padding: 10px 16px;
+    border: 2px solid var(--forest-green);
+    border-radius: var(--radius-md);
+    background: var(--mint);
+    color: var(--forest-green);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px var(--shadow);
+}
+
+.flatpickr-input:hover {
+    border-color: var(--sage-green);
+    background: var(--pastel-mint);
+    box-shadow: 0 3px 10px var(--shadow);
+    transform: translateY(-1px);
+}
+
+.flatpickr-input:focus {
+    outline: none;
+    border-color: var(--forest-green);
+    background: var(--pastel-mint);
+    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.2);
+}
+
+/* ===================================
    🌲 NATURE FOREST ANIMATED BACKGROUND
    =================================== */
 
