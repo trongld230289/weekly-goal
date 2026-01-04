@@ -8,10 +8,6 @@ const App = {
     schedule: {},
     workGoals: [],
     meGoals: [],
-    draggedElement: null,
-    draggedData: null,
-    resizing: false,
-    weekHistory: {}, // Store history of weeks for copy feature
 
     // Initialize the app
     init() {
@@ -33,9 +29,6 @@ const App = {
         
         // Update week display
         this.updateWeekDisplay();
-        
-        // Initialize drag and drop
-        this.initDragAndDrop();
 
         console.log('✨ Weekly Planner ready!');
     },
@@ -52,90 +45,46 @@ const App = {
         }
     },
 
-    // Generate schedule grid with time slots (Gantt-style with 1-hour blocks)
+    // Generate schedule grid with time slots
     generateScheduleGrid() {
         const tbody = document.getElementById('scheduleBody');
-        const thead = document.querySelector('.schedule-table thead tr');
         tbody.innerHTML = '';
 
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         
-        // Update header with dates
-        thead.innerHTML = '<th class="time-col">Time</th>';
-        days.forEach((day, index) => {
-            const monday = this.getMonday(this.currentWeek);
-            const currentDate = new Date(monday);
-            currentDate.setDate(monday.getDate() + index);
-            
-            const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
-            
-            thead.innerHTML += `
-                <th>
-                    <div class="day-header">
-                        <span class="day-name">${day}</span>
-                        <span class="day-date">${dateStr}</span>
-                    </div>
-                </th>
-            `;
-        });
-        
-        // Generate time slots from 5:00 AM to 11:00 PM (1-hour intervals for Gantt style)
+        // Generate time slots from 5:00 AM to 11:30 PM (30-minute intervals)
         for (let hour = 5; hour < 24; hour++) {
-            const time = `${String(hour).padStart(2, '0')}:00`;
-            const row = document.createElement('tr');
+            for (let minute = 0; minute < 60; minute += 30) {
+                const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                const row = document.createElement('tr');
 
-            // Time cell
-            const timeCell = document.createElement('td');
-            timeCell.className = 'time-col';
-            timeCell.textContent = this.formatTime(time);
-            row.appendChild(timeCell);
+                // Time cell
+                const timeCell = document.createElement('td');
+                timeCell.className = 'time-col';
+                timeCell.textContent = this.formatTime(time);
+                row.appendChild(timeCell);
 
-            // Day cells
-            days.forEach(day => {
-                const cell = document.createElement('td');
-                cell.dataset.day = day;
-                cell.dataset.time = time;
-                cell.className = 'gantt-cell';
-                
-                // Check for activities starting at this hour
-                this.renderActivitiesInCell(cell, day, time);
-
-                cell.addEventListener('click', (e) => {
-                    if (!e.target.closest('.gantt-block')) {
-                        this.openEditModal(day, time);
+                // Day cells
+                days.forEach(day => {
+                    const cell = document.createElement('td');
+                    cell.dataset.day = day;
+                    cell.dataset.time = time;
+                    
+                    const cellKey = `${day}-${time}`;
+                    if (this.schedule[cellKey]) {
+                        const data = this.schedule[cellKey];
+                        cell.innerHTML = `<div class="cell-content">${this.escapeHtml(data.text)}</div>`;
+                        if (data.category) {
+                            cell.classList.add(`category-${data.category}`);
+                        }
                     }
-                });
-                
-                row.appendChild(cell);
-            });
 
-            tbody.appendChild(row);
-        }
-    },
-    
-    // Render activities in a cell (Gantt-style blocks)
-    renderActivitiesInCell(cell, day, time) {
-        const cellKey = `${day}-${time}`;
-        if (this.schedule[cellKey]) {
-            const data = this.schedule[cellKey];
-            const duration = data.duration || 60;
-            
-            const block = document.createElement('div');
-            block.className = `gantt-block category-${data.category || 'other'} duration-${duration}`;
-            block.dataset.day = day;
-            block.dataset.time = time;
-            block.draggable = true;
-            
-            // Calculate height based on duration
-            const heightPercent = (duration / 60) * 100;
-            block.style.height = `${Math.min(heightPercent, 100)}%`;
-            
-            block.innerHTML = `
-                ${this.escapeHtml(data.text)}
-                <div class="resize-handle"></div>
-            `;
-            
-            cell.appendChild(block);
+                    cell.addEventListener('click', (e) => this.openEditModal(day, time));
+                    row.appendChild(cell);
+                });
+
+                tbody.appendChild(row);
+            }
         }
     },
 
@@ -159,11 +108,10 @@ const App = {
     openEditModal(day, time) {
         this.currentCell = { day, time };
         const cellKey = `${day}-${time}`;
-        const cellData = this.schedule[cellKey] || { text: '', category: '', reminder: false, duration: 60 };
+        const cellData = this.schedule[cellKey] || { text: '', category: '', reminder: false };
 
         document.getElementById('activityInput').value = cellData.text || '';
         document.getElementById('categorySelect').value = cellData.category || '';
-        document.getElementById('durationSelect').value = cellData.duration || 60;
         document.getElementById('reminderCheck').checked = cellData.reminder || false;
 
         const modal = document.getElementById('editModal');
@@ -186,11 +134,10 @@ const App = {
         
         const text = document.getElementById('activityInput').value.trim();
         const category = document.getElementById('categorySelect').value;
-        const duration = parseInt(document.getElementById('durationSelect').value);
         const reminder = document.getElementById('reminderCheck').checked;
 
         if (text) {
-            this.schedule[cellKey] = { text, category, duration, reminder };
+            this.schedule[cellKey] = { text, category, reminder };
             
             // Schedule reminder if enabled
             if (reminder && Notifications.permission) {
@@ -203,7 +150,6 @@ const App = {
 
         // Save and refresh
         Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
-        this.saveWeekHistory(); // Save to week history for copy feature
         this.generateScheduleGrid();
         this.closeEditModal();
     },
@@ -378,19 +324,13 @@ const App = {
 
     // Navigate to previous week
     prevWeek() {
-        this.saveWeekHistory(); // Save current week before switching
         this.currentWeek.setDate(this.currentWeek.getDate() - 7);
-        this.loadData(); // Load data for the new week
-        this.generateScheduleGrid();
         this.updateWeekDisplay();
     },
 
     // Navigate to next week
     nextWeek() {
-        this.saveWeekHistory(); // Save current week before switching
         this.currentWeek.setDate(this.currentWeek.getDate() + 7);
-        this.loadData(); // Load data for the new week
-        this.generateScheduleGrid();
         this.updateWeekDisplay();
     },
 
@@ -498,206 +438,8 @@ const App = {
             // ESC to close modal
             if (e.key === 'Escape') {
                 this.closeEditModal();
-                this.closeCopyWeekModal();
             }
         });
-        
-        // Copy Week button
-        document.getElementById('copyWeekBtn').addEventListener('click', () => this.openCopyWeekModal());
-        
-        // Copy Week modal controls
-        document.querySelectorAll('.close-copy-modal').forEach(btn => {
-            btn.addEventListener('click', () => this.closeCopyWeekModal());
-        });
-        
-        document.getElementById('confirmCopy').addEventListener('click', () => this.confirmCopyWeek());
-        
-        document.getElementById('copyWeekModal').addEventListener('click', (e) => {
-            if (e.target.id === 'copyWeekModal') {
-                this.closeCopyWeekModal();
-            }
-        });
-    },
-    
-    // ===================================
-    // 🎨 NEW FEATURES
-    // ===================================
-    
-    // Initialize drag and drop
-    initDragAndDrop() {
-        document.addEventListener('dragstart', (e) => {
-            if (e.target.classList.contains('gantt-block')) {
-                this.draggedElement = e.target;
-                this.draggedData = {
-                    day: e.target.dataset.day,
-                    time: e.target.dataset.time
-                };
-                e.target.classList.add('dragging');
-            }
-        });
-        
-        document.addEventListener('dragend', (e) => {
-            if (e.target.classList.contains('gantt-block')) {
-                e.target.classList.remove('dragging');
-                this.draggedElement = null;
-                this.draggedData = null;
-            }
-        });
-        
-        document.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            const cell = e.target.closest('.gantt-cell');
-            if (cell && this.draggedElement) {
-                cell.style.background = 'rgba(255, 209, 220, 0.3)';
-            }
-        });
-        
-        document.addEventListener('dragleave', (e) => {
-            const cell = e.target.closest('.gantt-cell');
-            if (cell) {
-                cell.style.background = '';
-            }
-        });
-        
-        document.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const cell = e.target.closest('.gantt-cell');
-            if (cell && this.draggedData) {
-                cell.style.background = '';
-                const newDay = cell.dataset.day;
-                const newTime = cell.dataset.time;
-                
-                // Move the activity
-                const oldKey = `${this.draggedData.day}-${this.draggedData.time}`;
-                const newKey = `${newDay}-${newTime}`;
-                
-                if (oldKey !== newKey) {
-                    this.schedule[newKey] = this.schedule[oldKey];
-                    delete this.schedule[oldKey];
-                    
-                    Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
-                    this.saveWeekHistory();
-                    this.generateScheduleGrid();
-                }
-            }
-        });
-        
-        // Resize functionality
-        document.addEventListener('mousedown', (e) => {
-            if (e.target.classList.contains('resize-handle')) {
-                e.preventDefault();
-                this.resizing = true;
-                const block = e.target.parentElement;
-                const cellKey = `${block.dataset.day}-${block.dataset.time}`;
-                
-                const startY = e.clientY;
-                const startHeight = block.offsetHeight;
-                
-                const onMouseMove = (moveEvent) => {
-                    if (this.resizing) {
-                        const delta = moveEvent.clientY - startY;
-                        const newHeight = Math.max(15, Math.min(startHeight + delta, 60));
-                        block.style.height = newHeight + 'px';
-                        
-                        // Calculate new duration (snap to 15-min intervals)
-                        const newDuration = Math.round((newHeight / 60) * 60 / 15) * 15;
-                        
-                        if (this.schedule[cellKey]) {
-                            this.schedule[cellKey].duration = newDuration;
-                        }
-                    }
-                };
-                
-                const onMouseUp = () => {
-                    this.resizing = false;
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
-                    
-                    Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
-                    this.saveWeekHistory();
-                    this.generateScheduleGrid();
-                };
-                
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            }
-        });
-    },
-    
-    // Save current week to history for copy feature
-    saveWeekHistory() {
-        const weekKey = this.getWeekKey(this.currentWeek);
-        const history = Storage.load('weekHistory', {});
-        history[weekKey] = JSON.parse(JSON.stringify(this.schedule));
-        Storage.save('weekHistory', history);
-    },
-    
-    // Get week key for history
-    getWeekKey(date) {
-        const monday = this.getMonday(date);
-        return monday.toISOString().split('T')[0];
-    },
-    
-    // Open copy week modal
-    openCopyWeekModal() {
-        const modal = document.getElementById('copyWeekModal');
-        const selector = document.getElementById('weekSelector');
-        const history = Storage.load('weekHistory', {});
-        const currentWeekKey = this.getWeekKey(this.currentWeek);
-        
-        // Populate week selector with available weeks
-        selector.innerHTML = '<option value="">Select a week...</option>';
-        
-        const weeks = Object.keys(history)
-            .filter(key => key !== currentWeekKey)
-            .sort()
-            .reverse();
-        
-        weeks.forEach(weekKey => {
-            const date = new Date(weekKey);
-            const weekNum = this.getWeekNumber(date);
-            const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const option = document.createElement('option');
-            option.value = weekKey;
-            option.textContent = `Week ${weekNum} - ${formatted}`;
-            selector.appendChild(option);
-        });
-        
-        if (weeks.length === 0) {
-            selector.innerHTML = '<option value="">No previous weeks available</option>';
-        }
-        
-        modal.classList.add('active');
-    },
-    
-    // Close copy week modal
-    closeCopyWeekModal() {
-        const modal = document.getElementById('copyWeekModal');
-        modal.classList.remove('active');
-    },
-    
-    // Confirm copy week
-    confirmCopyWeek() {
-        const selector = document.getElementById('weekSelector');
-        const selectedWeek = selector.value;
-        
-        if (!selectedWeek) {
-            alert('Please select a week to copy from');
-            return;
-        }
-        
-        const history = Storage.load('weekHistory', {});
-        const scheduleData = history[selectedWeek];
-        
-        if (scheduleData) {
-            // Copy the schedule to current week
-            this.schedule = JSON.parse(JSON.stringify(scheduleData));
-            Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
-            this.saveWeekHistory();
-            this.generateScheduleGrid();
-            this.closeCopyWeekModal();
-            alert('✅ Week plan copied successfully!');
-        }
     }
 };
 
