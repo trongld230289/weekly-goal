@@ -3,6 +3,13 @@
 // ===================================
 
 const App = {
+    // Gantt chart time configuration
+    START_HOUR: 5,        // 5:00 AM
+    END_HOUR: 24,         // 11:00 PM (exclusive)
+    TOTAL_HOURS: 19,      // 5AM to 11PM = 19 hours
+    TOTAL_MINUTES: 1140,  // 19 * 60 minutes
+    SNAP_MINUTES: 15,     // Snap to 15-minute intervals
+    
     currentWeek: new Date(),
     currentCell: null,
     schedule: {},
@@ -64,8 +71,8 @@ const App = {
 
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         
-        // Generate time ruler (5AM to 11PM = 19 hours)
-        for (let hour = 5; hour < 24; hour++) {
+        // Generate time ruler (using configured hours)
+        for (let hour = this.START_HOUR; hour < this.END_HOUR; hour++) {
             const slot = document.createElement('div');
             slot.className = 'gantt-time-slot';
             const ampm = hour >= 12 ? 'PM' : 'AM';
@@ -109,8 +116,8 @@ const App = {
                     const rect = content.getBoundingClientRect();
                     const clickX = e.clientX - rect.left;
                     const percentage = clickX / rect.width;
-                    const hourOffset = Math.floor(percentage * 19); // 19 hours total
-                    const hour = 5 + hourOffset;
+                    const hourOffset = Math.floor(percentage * this.TOTAL_HOURS);
+                    const hour = this.START_HOUR + hourOffset;
                     const time = `${String(hour).padStart(2, '0')}:00`;
                     this.openEditModal(day, time);
                 }
@@ -184,11 +191,10 @@ const App = {
     // Calculate bar position and width based on time and duration
     calculateBarPosition(time, duration) {
         const [hours, minutes] = time.split(':').map(Number);
-        const startMinutes = (hours - 5) * 60 + minutes; // Minutes from 5:00 AM
-        const totalMinutes = 19 * 60; // 5AM to 11PM = 19 hours = 1140 minutes
+        const startMinutes = (hours - this.START_HOUR) * 60 + minutes;
         
-        const left = (startMinutes / totalMinutes) * 100;
-        const width = (duration / totalMinutes) * 100;
+        const left = (startMinutes / this.TOTAL_MINUTES) * 100;
+        const width = (duration / this.TOTAL_MINUTES) * 100;
         
         return { left, width };
     },
@@ -229,11 +235,10 @@ const App = {
         const currentHour = now.getHours();
         const currentMinutes = now.getMinutes();
         
-        // Only show if current time is within our range (5AM - 11PM)
-        if (currentHour >= 5 && currentHour < 24) {
-            const minutesFromStart = (currentHour - 5) * 60 + currentMinutes;
-            const totalMinutes = 19 * 60;
-            const position = (minutesFromStart / totalMinutes) * 100;
+        // Only show if current time is within our range
+        if (currentHour >= this.START_HOUR && currentHour < this.END_HOUR) {
+            const minutesFromStart = (currentHour - this.START_HOUR) * 60 + currentMinutes;
+            const position = (minutesFromStart / this.TOTAL_MINUTES) * 100;
             
             // Add to each row
             const rows = document.querySelectorAll('.gantt-row-content');
@@ -688,10 +693,9 @@ const App = {
                 const clickX = e.clientX - rect.left;
                 const percentage = Math.max(0, Math.min(1, clickX / rect.width));
                 
-                // Snap to 15 minutes
-                const totalMinutes = 19 * 60; // 5AM to 11PM
-                const minutesFromStart = Math.round(percentage * totalMinutes / 15) * 15;
-                const hours = Math.floor(minutesFromStart / 60) + 5;
+                // Snap to configured interval
+                const minutesFromStart = Math.round(percentage * this.TOTAL_MINUTES / this.SNAP_MINUTES) * this.SNAP_MINUTES;
+                const hours = Math.floor(minutesFromStart / 60) + this.START_HOUR;
                 const minutes = minutesFromStart % 60;
                 const newTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
                 
@@ -712,6 +716,9 @@ const App = {
                     Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
                     this.saveWeekHistory();
                     this.generateScheduleGrid();
+                } else if (this.schedule[newKey]) {
+                    // Show feedback when drop is rejected due to overlap
+                    alert('⚠️ That time slot is already occupied. Please choose a different time.');
                 }
             }
         });
@@ -750,21 +757,20 @@ const App = {
                 const deltaX = e.clientX - resizeData.startX;
                 const deltaPercent = (deltaX / resizeData.containerWidth) * 100;
                 
-                const totalMinutes = 19 * 60;
-                const minutesPerPercent = totalMinutes / 100;
+                const minutesPerPercent = this.TOTAL_MINUTES / 100;
                 
                 if (resizing.isLeft) {
                     // Resize from left (change start time)
                     let newLeft = resizeData.startLeft + deltaPercent;
                     let newWidth = resizeData.startWidth - deltaPercent;
                     
-                    // Snap to 15 minutes
-                    const minutes = Math.round((newLeft * minutesPerPercent) / 15) * 15;
-                    newLeft = (minutes / totalMinutes) * 100;
+                    // Snap to configured interval
+                    const minutes = Math.round((newLeft * minutesPerPercent) / this.SNAP_MINUTES) * this.SNAP_MINUTES;
+                    newLeft = (minutes / this.TOTAL_MINUTES) * 100;
                     newWidth = resizeData.startLeft + resizeData.startWidth - newLeft;
                     
-                    // Minimum 15 minutes
-                    if (newWidth >= (15 / totalMinutes) * 100) {
+                    // Minimum duration = SNAP_MINUTES
+                    if (newWidth >= (this.SNAP_MINUTES / this.TOTAL_MINUTES) * 100) {
                         resizing.bar.style.left = newLeft + '%';
                         resizing.bar.style.width = newWidth + '%';
                     }
@@ -772,12 +778,12 @@ const App = {
                     // Resize from right (change duration)
                     let newWidth = resizeData.startWidth + deltaPercent;
                     
-                    // Snap to 15 minutes
-                    const minutes = Math.round((newWidth * minutesPerPercent) / 15) * 15;
-                    newWidth = (minutes / totalMinutes) * 100;
+                    // Snap to configured interval
+                    const minutes = Math.round((newWidth * minutesPerPercent) / this.SNAP_MINUTES) * this.SNAP_MINUTES;
+                    newWidth = (minutes / this.TOTAL_MINUTES) * 100;
                     
-                    // Minimum 15 minutes
-                    if (newWidth >= (15 / totalMinutes) * 100) {
+                    // Minimum duration = SNAP_MINUTES
+                    if (newWidth >= (this.SNAP_MINUTES / this.TOTAL_MINUTES) * 100) {
                         resizing.bar.style.width = newWidth + '%';
                     }
                 }
@@ -797,11 +803,10 @@ const App = {
                 const newLeft = parseFloat(bar.style.left);
                 const newWidth = parseFloat(bar.style.width);
                 
-                const totalMinutes = 19 * 60;
-                const startMinutes = Math.round((newLeft / 100) * totalMinutes);
-                const duration = Math.round((newWidth / 100) * totalMinutes);
+                const startMinutes = Math.round((newLeft / 100) * this.TOTAL_MINUTES);
+                const duration = Math.round((newWidth / 100) * this.TOTAL_MINUTES);
                 
-                const hours = Math.floor(startMinutes / 60) + 5;
+                const hours = Math.floor(startMinutes / 60) + this.START_HOUR;
                 const minutes = startMinutes % 60;
                 const newTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
                 

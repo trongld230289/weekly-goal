@@ -29,6 +29,9 @@
     --shadow: rgba(232, 180, 188, 0.15);
     --accent: #E8B4BC;
     
+    /* Gantt Chart Configuration */
+    --gantt-total-hours: 19; /* 5AM to 11PM = 19 hours */
+    
     /* Spacing */
     --radius-sm: 10px;
     --radius-md: 15px;
@@ -210,7 +213,7 @@ body {
 .gantt-timeline {
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(19, 1fr); /* 5AM to 11PM = 19 hours */
+    grid-template-columns: repeat(var(--gantt-total-hours), 1fr);
     min-width: 1200px;
     gap: 1px;
 }
@@ -292,9 +295,9 @@ body {
     background-image: repeating-linear-gradient(
         to right,
         transparent,
-        transparent calc(100% / 19 - 1px),
-        var(--border-color) calc(100% / 19 - 1px),
-        var(--border-color) calc(100% / 19)
+        transparent calc(100% / var(--gantt-total-hours) - 1px),
+        var(--border-color) calc(100% / var(--gantt-total-hours) - 1px),
+        var(--border-color) calc(100% / var(--gantt-total-hours))
     );
     pointer-events: none;
 }
