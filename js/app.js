@@ -19,6 +19,7 @@ const App = {
     draggedData: null,
     resizing: false,
     weekHistory: {}, // Store history of weeks for copy feature
+    flatpickrInstance: null, // Flatpickr instance
 
     // Initialize the app
     init() {
@@ -46,6 +47,9 @@ const App = {
         
         // Initialize drag and drop
         this.initDragAndDrop();
+        
+        // Initialize Flatpickr
+        this.initFlatpickr();
 
         console.log('✨ Weekly Planner ready!');
     },
@@ -476,9 +480,30 @@ const App = {
         document.getElementById('weekTitle').textContent = 
             `WEEK ${weekNum} - Week of: ${monthName} ${day}`;
         
-        document.getElementById('datePicker').valueAsDate = this.currentWeek;
+        // Update Flatpickr date if initialized
+        if (this.flatpickrInstance) {
+            this.flatpickrInstance.setDate(this.currentWeek, false);
+        }
         
         Storage.save(Storage.KEYS.CURRENT_WEEK, this.currentWeek.toISOString());
+    },
+
+    // Initialize Flatpickr
+    initFlatpickr() {
+        const datePickerInput = document.getElementById('datePicker');
+        
+        this.flatpickrInstance = flatpickr(datePickerInput, {
+            dateFormat: "Y-m-d",
+            defaultDate: this.currentWeek,
+            locale: {
+                firstDayOfWeek: 1 // Monday first
+            },
+            onChange: (selectedDates, dateStr) => {
+                if (selectedDates.length > 0) {
+                    this.onDateChange(dateStr);
+                }
+            }
+        });
     },
 
     // Get week number
@@ -557,9 +582,7 @@ const App = {
         // Week navigation
         document.getElementById('prevWeek').addEventListener('click', () => this.prevWeek());
         document.getElementById('nextWeek').addEventListener('click', () => this.nextWeek());
-        document.getElementById('datePicker').addEventListener('change', (e) => {
-            this.onDateChange(e.target.value);
-        });
+        // Note: Date picker change is now handled by Flatpickr onChange callback
 
         // Modal controls
         document.querySelector('.close-modal').addEventListener('click', () => this.closeEditModal());
