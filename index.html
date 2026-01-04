@@ -51,15 +51,73 @@
         <div class="vine vine-1"></div>
         <div class="vine vine-2"></div>
         
-        <!-- Emoji Pine Trees -->
-        <div class="tree-emoji" style="left: 3%; bottom: 0; font-size: 100px;">🌲</div>
-        <div class="tree-emoji" style="left: 10%; bottom: 0; font-size: 60px;">🌲</div>
-        <div class="tree-emoji" style="left: 18%; bottom: 0; font-size: 80px;">🌲</div>
-        <div class="tree-emoji" style="left: 25%; bottom: 0; font-size: 40px;">🌲</div>
-        <div class="tree-emoji" style="right: 3%; bottom: 0; font-size: 100px;">🌲</div>
-        <div class="tree-emoji" style="right: 10%; bottom: 0; font-size: 60px;">🌲</div>
-        <div class="tree-emoji" style="right: 18%; bottom: 0; font-size: 80px;">🌲</div>
-        <div class="tree-emoji" style="right: 25%; bottom: 0; font-size: 40px;">🌲</div>
+        <!-- Pine Trees - SVG with gradient for 3D effect -->
+        <!-- Shared SVG definitions for gradients -->
+        <svg style="position: absolute; width: 0; height: 0;">
+            <defs>
+                <linearGradient id="treeGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#2D5A27;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#4CAF50;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#2D5A27;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+        </svg>
+        
+        <svg class="pine-tree tree-large" style="left: 3%; bottom: 0;" viewBox="0 0 100 140">
+            <polygon points="50,10 15,50 85,50" fill="url(#treeGrad1)" opacity="0.9"/>
+            <polygon points="50,30 10,70 90,70" fill="url(#treeGrad1)" opacity="0.85"/>
+            <polygon points="50,50 5,90 95,90" fill="url(#treeGrad1)" opacity="0.8"/>
+            <rect x="42" y="90" width="16" height="30" fill="#8B4513" rx="3"/>
+        </svg>
+        
+        <svg class="pine-tree tree-medium" style="left: 10%; bottom: 0;" viewBox="0 0 100 140">
+            <polygon points="50,10 15,50 85,50" fill="url(#treeGrad1)" opacity="0.9"/>
+            <polygon points="50,30 10,70 90,70" fill="url(#treeGrad1)" opacity="0.85"/>
+            <polygon points="50,50 5,90 95,90" fill="url(#treeGrad1)" opacity="0.8"/>
+            <rect x="42" y="90" width="16" height="30" fill="#8B4513" rx="3"/>
+        </svg>
+        
+        <svg class="pine-tree tree-large" style="left: 18%; bottom: 0;" viewBox="0 0 100 140">
+            <polygon points="50,10 15,50 85,50" fill="url(#treeGrad1)" opacity="0.9"/>
+            <polygon points="50,30 10,70 90,70" fill="url(#treeGrad1)" opacity="0.85"/>
+            <polygon points="50,50 5,90 95,90" fill="url(#treeGrad1)" opacity="0.8"/>
+            <rect x="42" y="90" width="16" height="30" fill="#8B4513" rx="3"/>
+        </svg>
+        
+        <svg class="pine-tree tree-small" style="left: 25%; bottom: 0;" viewBox="0 0 100 140">
+            <polygon points="50,10 15,50 85,50" fill="url(#treeGrad1)" opacity="0.9"/>
+            <polygon points="50,30 10,70 90,70" fill="url(#treeGrad1)" opacity="0.85"/>
+            <polygon points="50,50 5,90 95,90" fill="url(#treeGrad1)" opacity="0.8"/>
+            <rect x="42" y="90" width="16" height="30" fill="#8B4513" rx="3"/>
+        </svg>
+        
+        <svg class="pine-tree tree-large" style="right: 3%; bottom: 0;" viewBox="0 0 100 140">
+            <polygon points="50,10 15,50 85,50" fill="url(#treeGrad1)" opacity="0.9"/>
+            <polygon points="50,30 10,70 90,70" fill="url(#treeGrad1)" opacity="0.85"/>
+            <polygon points="50,50 5,90 95,90" fill="url(#treeGrad1)" opacity="0.8"/>
+            <rect x="42" y="90" width="16" height="30" fill="#8B4513" rx="3"/>
+        </svg>
+        
+        <svg class="pine-tree tree-medium" style="right: 10%; bottom: 0;" viewBox="0 0 100 140">
+            <polygon points="50,10 15,50 85,50" fill="url(#treeGrad1)" opacity="0.9"/>
+            <polygon points="50,30 10,70 90,70" fill="url(#treeGrad1)" opacity="0.85"/>
+            <polygon points="50,50 5,90 95,90" fill="url(#treeGrad1)" opacity="0.8"/>
+            <rect x="42" y="90" width="16" height="30" fill="#8B4513" rx="3"/>
+        </svg>
+        
+        <svg class="pine-tree tree-large" style="right: 18%; bottom: 0;" viewBox="0 0 100 140">
+            <polygon points="50,10 15,50 85,50" fill="url(#treeGrad1)" opacity="0.9"/>
+            <polygon points="50,30 10,70 90,70" fill="url(#treeGrad1)" opacity="0.85"/>
+            <polygon points="50,50 5,90 95,90" fill="url(#treeGrad1)" opacity="0.8"/>
+            <rect x="42" y="90" width="16" height="30" fill="#8B4513" rx="3"/>
+        </svg>
+        
+        <svg class="pine-tree tree-small" style="right: 25%; bottom: 0;" viewBox="0 0 100 140">
+            <polygon points="50,10 15,50 85,50" fill="url(#treeGrad1)" opacity="0.9"/>
+            <polygon points="50,30 10,70 90,70" fill="url(#treeGrad1)" opacity="0.85"/>
+            <polygon points="50,50 5,90 95,90" fill="url(#treeGrad1)" opacity="0.8"/>
+            <rect x="42" y="90" width="16" height="30" fill="#8B4513" rx="3"/>
+        </svg>
     </div>
 
     <!-- Main Container -->
@@ -194,8 +252,7 @@
                 </label>
             </div>
             <div class="modal-footer">
-                <button id="deleteActivity" class="delete-btn">Delete</button>
-                <button class="close-modal cancel-btn">Cancel</button>
+                <button id="deleteActivity" class="delete-btn" style="display: none;">Delete</button>
                 <button id="saveActivity" class="save-btn">Save</button>
             </div>
         </div>

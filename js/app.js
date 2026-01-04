@@ -290,11 +290,22 @@ const App = {
         this.currentCell = { day, time };
         const cellKey = `${day}-${time}`;
         const cellData = this.schedule[cellKey] || { text: '', category: '', reminder: false, duration: 60 };
+        
+        // Check if this is edit mode (activity exists) or add mode (new activity)
+        const isEditMode = cellData.text && cellData.text.trim();
 
         document.getElementById('activityInput').value = cellData.text || '';
         document.getElementById('categorySelect').value = cellData.category || '';
         document.getElementById('durationSelect').value = cellData.duration || 60;
         document.getElementById('reminderCheck').checked = cellData.reminder || false;
+
+        // Show/hide Delete button based on edit mode
+        const deleteBtn = document.getElementById('deleteActivity');
+        if (isEditMode) {
+            deleteBtn.style.display = 'block';
+        } else {
+            deleteBtn.style.display = 'none';
+        }
 
         const modal = document.getElementById('editModal');
         modal.classList.add('active');
