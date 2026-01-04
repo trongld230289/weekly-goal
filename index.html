@@ -129,7 +129,10 @@
                 <div class="week-info">
                     <h1 id="weekTitle">WEEK 1 - Week of: January 5</h1>
                     <input type="date" id="datePicker" class="date-picker">
-                    <button id="copyWeekBtn" class="copy-week-btn">📋 Copy Week</button>
+                    <div class="week-actions">
+                        <button id="copyWeekBtn" class="copy-week-btn">📋 Copy Week</button>
+                        <button id="toggleStandardBtn" class="toggle-standard-btn">⭐ Mark as Standard</button>
+                    </div>
                 </div>
                 <button id="nextWeek" class="nav-btn">Next →</button>
             </div>
@@ -273,7 +276,6 @@
                 <p class="copy-note">This will copy all schedule activities from the selected week to the current week. Goals and notes will not be copied.</p>
             </div>
             <div class="modal-footer">
-                <button class="close-copy-modal cancel-btn">Cancel</button>
                 <button id="confirmCopy" class="save-btn">Copy Week</button>
             </div>
         </div>

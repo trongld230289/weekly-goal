@@ -68,7 +68,7 @@ body {
     line-height: 1.6;
     transition: background 0.3s ease, color 0.3s ease;
     position: relative;
-    padding-bottom: 180px; /* Increase bottom padding to show full pine trees */
+    padding-bottom: 250px; /* Increase bottom padding to show full pine trees when scrolled to bottom */
 }
 
 /* Container */
@@ -978,9 +978,16 @@ body {
     z-index: 9999;
 }
 
+/* Week Actions Container */
+.week-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    margin-top: var(--spacing-sm);
+}
+
 /* Copy Week Button */
 .copy-week-btn {
-    margin-top: var(--spacing-sm);
     padding: 8px 16px;
     background: linear-gradient(135deg, var(--sage-green), var(--mint));
     border: none;
@@ -994,6 +1001,25 @@ body {
 }
 
 .copy-week-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px var(--shadow);
+}
+
+/* Toggle Standard Week Button */
+.toggle-standard-btn {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--cream), var(--pastel-peach));
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px var(--shadow);
+}
+
+.toggle-standard-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px var(--shadow);
 }
