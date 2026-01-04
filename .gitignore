@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+
+# Package lock
+package-lock.json
+
+# Local library files (CDN used in production)
+libs/
