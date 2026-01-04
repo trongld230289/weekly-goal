@@ -12,6 +12,7 @@
     --sky-blue: #87CEEB;
     --flower-pink: #FFB6C1;
     --flower-purple: #DDA0DD;
+    --orange: #FF6B35;
     
     /* Pastel variants for compatibility */
     --pastel-pink: #FFB6C1;
@@ -28,7 +29,8 @@
     --sleep: #C1E1C1;
     --meeting: #9DC183;
     --meal: #FFF1C1;
-    --other: #C4A77D;
+    --reading: #E8C5A5;
+    --working: #A8D8EA;
     
     /* Base Colors - Forest themed */
     --bg-primary: linear-gradient(135deg, #F0F8F0 0%, #E8F5E9 100%);
@@ -52,16 +54,6 @@
     --spacing-lg: 20px;
 }
 
-/* Dark Mode Colors */
-body.dark-mode {
-    --bg-primary: #2D3748;
-    --bg-secondary: #1A202C;
-    --text-primary: #E2E8F0;
-    --text-secondary: #CBD5E0;
-    --border-color: #4A5568;
-    --shadow: rgba(0, 0, 0, 0.3);
-}
-
 /* Reset & Base */
 * {
     margin: 0;
@@ -78,40 +70,11 @@ body {
     position: relative;
 }
 
-/* Theme Toggle */
-.theme-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-}
-
-.theme-btn {
-    background: var(--bg-secondary);
-    border: 2px solid var(--border-color);
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    cursor: pointer;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px var(--shadow);
-}
-
-.theme-btn:hover {
-    transform: scale(1.1) rotate(15deg);
-    box-shadow: 0 6px 20px var(--shadow);
-}
-
 /* Container */
 .container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
-    padding-top: 80px;
 }
 
 /* Header */
@@ -164,12 +127,25 @@ body {
 .date-picker {
     margin-top: var(--spacing-sm);
     padding: 8px 16px;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--forest-green);
     border-radius: var(--radius-md);
-    background: var(--bg-primary);
+    background: white;
     color: var(--text-primary);
     font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.date-picker:hover {
+    border-color: var(--sage-green);
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.date-picker:focus {
+    outline: none;
+    border-color: var(--forest-green);
+    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.2);
 }
 
 /* Main Grid Layout */
@@ -409,7 +385,8 @@ body {
 .category-sleep { background: var(--sleep) !important; }
 .category-meeting { background: var(--meeting) !important; }
 .category-meal { background: var(--meal) !important; }
-.category-other { background: var(--other) !important; }
+.category-reading { background: var(--reading) !important; }
+.category-working { background: var(--working) !important; }
 
 /* Overlap Warning */
 .gantt-bar.overlap-warning {
@@ -644,7 +621,8 @@ body {
 .legend-item[data-category="sleep"] { background: var(--sleep); color: #fff; }
 .legend-item[data-category="meeting"] { background: var(--meeting); color: #fff; }
 .legend-item[data-category="meal"] { background: var(--meal); color: #333; }
-.legend-item[data-category="other"] { background: var(--other); color: #fff; }
+.legend-item[data-category="reading"] { background: var(--reading); color: #fff; }
+.legend-item[data-category="working"] { background: var(--working); color: #fff; }
 
 /* Modal */
 .modal {
@@ -953,12 +931,8 @@ body {
     position: absolute;
     background: rgba(255, 255, 255, 0.85);
     border-radius: 100px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-body:not(.dark-mode) .cloud {
     opacity: 0.9;
+    transition: opacity 0.5s ease;
 }
 
 .cloud::before,
@@ -992,26 +966,26 @@ body:not(.dark-mode) .cloud {
 }
 
 .cloud-2 {
-    width: 120px;
-    height: 50px;
+    width: 140px;
+    height: 60px;
     top: 25%;
-    left: -120px;
+    left: -140px;
     animation: floatCloud2 100s linear infinite;
     animation-delay: 30s;
 }
 
 .cloud-2::before {
-    width: 60px;
-    height: 60px;
-    top: -30px;
-    left: 20px;
+    width: 70px;
+    height: 70px;
+    top: -35px;
+    left: 25px;
 }
 
 .cloud-2::after {
-    width: 70px;
-    height: 50px;
-    top: -22px;
-    right: 20px;
+    width: 80px;
+    height: 60px;
+    top: -28px;
+    right: 25px;
 }
 
 .cloud-3 {
@@ -1037,13 +1011,59 @@ body:not(.dark-mode) .cloud {
     right: 12px;
 }
 
+.cloud-4 {
+    width: 110px;
+    height: 48px;
+    top: 15%;
+    left: -110px;
+    animation: floatCloud4 95s linear infinite;
+    animation-delay: 45s;
+}
+
+.cloud-4::before {
+    width: 55px;
+    height: 55px;
+    top: -28px;
+    left: 18px;
+}
+
+.cloud-4::after {
+    width: 65px;
+    height: 48px;
+    top: -24px;
+    right: 18px;
+}
+
+.cloud-5 {
+    width: 80px;
+    height: 35px;
+    top: 40%;
+    left: -80px;
+    animation: floatCloud5 85s linear infinite;
+    animation-delay: 15s;
+}
+
+.cloud-5::before {
+    width: 40px;
+    height: 40px;
+    top: -18px;
+    left: 10px;
+}
+
+.cloud-5::after {
+    width: 45px;
+    height: 35px;
+    top: -15px;
+    right: 10px;
+}
+
 @keyframes floatCloud1 {
     0% { left: -100px; }
     100% { left: 110%; }
 }
 
 @keyframes floatCloud2 {
-    0% { left: -120px; }
+    0% { left: -140px; }
     100% { left: 110%; }
 }
 
@@ -1052,58 +1072,127 @@ body:not(.dark-mode) .cloud {
     100% { left: 110%; }
 }
 
-/* Birds transformed to Butterflies */
+@keyframes floatCloud4 {
+    0% { left: -110px; }
+    100% { left: 110%; }
+}
+
+@keyframes floatCloud5 {
+    0% { left: -80px; }
+    100% { left: 110%; }
+}
+
+/* Birds transformed to Butterflies - Random zigzag movement */
 .bird {
     position: absolute;
     font-size: 24px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-body:not(.dark-mode) .bird {
     opacity: 0.7;
+    transition: opacity 0.5s ease;
 }
 
 .bird-1 {
     top: 12%;
     left: -30px;
-    animation: flyButterfly1 70s linear infinite;
+    animation: flyButterfly1 60s linear infinite;
 }
 
 .bird-2 {
     top: 20%;
     left: -30px;
-    animation: flyButterfly2 80s linear infinite;
-    animation-delay: 25s;
+    animation: flyButterfly2 70s linear infinite;
+    animation-delay: 20s;
+}
+
+.bird-3 {
+    top: 35%;
+    left: -30px;
+    animation: flyButterfly3 65s linear infinite;
+    animation-delay: 40s;
+}
+
+.bird-4 {
+    top: 45%;
+    left: -30px;
+    animation: flyButterfly4 75s linear infinite;
+    animation-delay: 10s;
+}
+
+.bird-5 {
+    top: 28%;
+    left: -30px;
+    animation: flyButterfly5 68s linear infinite;
+    animation-delay: 50s;
 }
 
 @keyframes flyButterfly1 {
-    0% { left: -30px; transform: translateY(0) rotate(0deg); }
-    25% { transform: translateY(-25px) rotate(10deg); }
-    50% { transform: translateY(0) rotate(-10deg); }
-    75% { transform: translateY(-20px) rotate(5deg); }
-    100% { left: 110%; transform: translateY(0) rotate(0deg); }
+    0% { left: -30px; transform: translateY(0) translateX(0) rotate(0deg); }
+    10% { transform: translateY(-40px) translateX(30px) rotate(15deg); }
+    20% { transform: translateY(-20px) translateX(-20px) rotate(-10deg); }
+    30% { transform: translateY(-50px) translateX(40px) rotate(20deg); }
+    40% { transform: translateY(-10px) translateX(-30px) rotate(-15deg); }
+    50% { transform: translateY(-45px) translateX(25px) rotate(10deg); }
+    60% { transform: translateY(-25px) translateX(-15px) rotate(-20deg); }
+    70% { transform: translateY(-35px) translateX(35px) rotate(15deg); }
+    80% { transform: translateY(-15px) translateX(-25px) rotate(-10deg); }
+    90% { transform: translateY(-40px) translateX(20px) rotate(5deg); }
+    100% { left: 110%; transform: translateY(0) translateX(0) rotate(0deg); }
 }
 
 @keyframes flyButterfly2 {
-    0% { left: -30px; transform: translateY(0) rotate(0deg); }
-    30% { transform: translateY(-30px) rotate(-10deg); }
-    60% { transform: translateY(0) rotate(10deg); }
-    80% { transform: translateY(-22px) rotate(-5deg); }
-    100% { left: 110%; transform: translateY(0) rotate(0deg); }
+    0% { left: -30px; transform: translateY(0) translateX(0) rotate(0deg); }
+    12% { transform: translateY(-35px) translateX(-25px) rotate(-18deg); }
+    24% { transform: translateY(-15px) translateX(40px) rotate(12deg); }
+    36% { transform: translateY(-48px) translateX(-18px) rotate(-15deg); }
+    48% { transform: translateY(-22px) translateX(32px) rotate(18deg); }
+    60% { transform: translateY(-42px) translateX(-28px) rotate(-12deg); }
+    72% { transform: translateY(-18px) translateX(38px) rotate(15deg); }
+    84% { transform: translateY(-38px) translateX(-22px) rotate(-10deg); }
+    96% { transform: translateY(-28px) translateX(28px) rotate(8deg); }
+    100% { left: 110%; transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
+@keyframes flyButterfly3 {
+    0% { left: -30px; transform: translateY(0) translateX(0) rotate(0deg); }
+    15% { transform: translateY(-30px) translateX(35px) rotate(20deg); }
+    30% { transform: translateY(-55px) translateX(-22px) rotate(-15deg); }
+    45% { transform: translateY(-18px) translateX(42px) rotate(12deg); }
+    60% { transform: translateY(-45px) translateX(-30px) rotate(-18deg); }
+    75% { transform: translateY(-25px) translateX(38px) rotate(15deg); }
+    90% { transform: translateY(-40px) translateX(-18px) rotate(-12deg); }
+    100% { left: 110%; transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
+@keyframes flyButterfly4 {
+    0% { left: -30px; transform: translateY(0) translateX(0) rotate(0deg); }
+    14% { transform: translateY(-42px) translateX(-32px) rotate(-16deg); }
+    28% { transform: translateY(-20px) translateX(45px) rotate(18deg); }
+    42% { transform: translateY(-50px) translateX(-20px) rotate(-20deg); }
+    56% { transform: translateY(-12px) translateX(38px) rotate(14deg); }
+    70% { transform: translateY(-38px) translateX(-28px) rotate(-12deg); }
+    84% { transform: translateY(-28px) translateX(42px) rotate(16deg); }
+    100% { left: 110%; transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
+@keyframes flyButterfly5 {
+    0% { left: -30px; transform: translateY(0) translateX(0) rotate(0deg); }
+    11% { transform: translateY(-38px) translateX(28px) rotate(14deg); }
+    22% { transform: translateY(-22px) translateX(-35px) rotate(-16deg); }
+    33% { transform: translateY(-46px) translateX(22px) rotate(18deg); }
+    44% { transform: translateY(-16px) translateX(-28px) rotate(-14deg); }
+    55% { transform: translateY(-40px) translateX(32px) rotate(12deg); }
+    66% { transform: translateY(-26px) translateX(-25px) rotate(-18deg); }
+    77% { transform: translateY(-34px) translateX(36px) rotate(16deg); }
+    88% { transform: translateY(-20px) translateX(-20px) rotate(-10deg); }
+    100% { left: 110%; transform: translateY(0) translateX(0) rotate(0deg); }
 }
 
 /* Flowers - Larger and More */
 .flower {
     position: absolute;
     font-size: 32px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-body:not(.dark-mode) .flower {
     opacity: 0.8;
     animation: bobFlower 4s ease-in-out infinite;
+    transition: opacity 0.5s ease;
 }
 
 .flower-1 {
@@ -1132,13 +1221,9 @@ body:not(.dark-mode) .flower {
 .sparkle {
     position: absolute;
     font-size: 18px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    color: #F4E04D; /* Yellow-green color instead of filter */
-}
-
-body:not(.dark-mode) .sparkle {
+    color: #F4E04D;
     animation: twinkleSparkle 3s ease-in-out infinite;
+    transition: opacity 0.5s ease;
 }
 
 .sparkle-1 {
@@ -1163,40 +1248,12 @@ body:not(.dark-mode) .sparkle {
     50% { opacity: 0.7; transform: scale(1.2) rotate(180deg); }
 }
 
-/* Pine Trees at Footer */
-.pine-tree {
-    position: fixed;
-    font-size: 80px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    z-index: 0;
-    color: var(--forest-green);
-}
-
-body:not(.dark-mode) .pine-tree {
-    opacity: 0.3;
-}
-
-.pine-tree-1 {
-    bottom: -10px;
-    left: 5%;
-}
-
-.pine-tree-2 {
-    bottom: -10px;
-    right: 5%;
-}
-
 /* Falling Leaves */
 .falling-leaf {
     position: absolute;
     font-size: 20px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-body:not(.dark-mode) .falling-leaf {
     animation: fallLeaf 12s ease-in infinite;
+    transition: opacity 0.5s ease;
 }
 
 .falling-leaf-1 {
@@ -1245,15 +1302,11 @@ body:not(.dark-mode) .falling-leaf {
     position: fixed;
     width: 60px;
     height: 150px;
-    opacity: 0;
+    opacity: 0.2;
     transition: opacity 0.5s ease;
     background: linear-gradient(to bottom, transparent, var(--sage-green), transparent);
     border-radius: 50px;
     z-index: 0;
-}
-
-body:not(.dark-mode) .vine {
-    opacity: 0.2;
 }
 
 .vine-1 {
@@ -1300,85 +1353,235 @@ body:not(.dark-mode) .vine {
 }
 
 /* ===================================
-   🌙 CUTE DARK MODE - MORE SUBTLE
+   🌲 CSS PINE TREES
    =================================== */
 
-/* Stars - Smaller */
-.star {
+.pine-tree {
+    position: fixed;
+    bottom: 0;
+    z-index: 1;
+}
+
+.pine-tree-small {
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 60px solid var(--forest-green);
+    position: relative;
+}
+
+.pine-tree-small::before {
+    content: '';
     position: absolute;
-    font-size: 12px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+    border-bottom: 70px solid var(--forest-green);
+    top: 20px;
+    left: -30px;
 }
 
-body.dark-mode .star {
-    animation: twinkleStar 4s ease-in-out infinite;
-}
-
-.star-1 {
-    top: 10%;
-    left: 15%;
-}
-
-.star-2 {
-    top: 20%;
-    right: 20%;
-    animation-delay: 0.8s;
-}
-
-.star-3 {
-    top: 35%;
-    left: 30%;
-    animation-delay: 1.6s;
-}
-
-.star-4 {
-    top: 50%;
-    right: 35%;
-    animation-delay: 2.4s;
-}
-
-.star-5 {
-    top: 65%;
-    left: 45%;
-    animation-delay: 3.2s;
-}
-
-@keyframes twinkleStar {
-    0%, 100% { opacity: 0.2; transform: scale(0.8); }
-    50% { opacity: 0.6; transform: scale(1.2); }
-}
-
-/* Moon - More Subtle */
-.moon {
+.pine-tree-small::after {
+    content: '';
     position: absolute;
-    top: 8%;
-    right: 8%;
-    font-size: 40px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
+    width: 10px;
+    height: 30px;
+    background: #8B4513;
+    top: 60px;
+    left: -5px;
 }
 
-body.dark-mode .moon {
-    opacity: 0.5;
-    animation: floatMoon 6s ease-in-out infinite;
+.pine-tree-medium {
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 90px solid var(--forest-green);
+    position: relative;
 }
 
-@keyframes floatMoon {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
+.pine-tree-medium::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 48px solid transparent;
+    border-right: 48px solid transparent;
+    border-bottom: 105px solid var(--forest-green);
+    top: 30px;
+    left: -48px;
 }
 
-/* Enhanced dark mode background */
-body.dark-mode {
-    background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+.pine-tree-medium::after {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 45px;
+    background: #8B4513;
+    top: 90px;
+    left: -7.5px;
 }
 
-body.dark-mode .schedule-section,
-body.dark-mode .goal-card,
-body.dark-mode .notes-card,
-body.dark-mode .legend,
-body.dark-mode .header {
-    background: rgba(26, 32, 44, 0.8);
-    backdrop-filter: blur(10px);
+.pine-tree-large {
+    width: 0;
+    height: 0;
+    border-left: 55px solid transparent;
+    border-right: 55px solid transparent;
+    border-bottom: 120px solid var(--forest-green);
+    position: relative;
+}
+
+.pine-tree-large::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 65px solid transparent;
+    border-right: 65px solid transparent;
+    border-bottom: 140px solid var(--forest-green);
+    top: 40px;
+    left: -65px;
+}
+
+.pine-tree-large::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 60px;
+    background: #8B4513;
+    top: 120px;
+    left: -10px;
+}
+
+/* ===================================
+   ⛺ CSS CAMPING TENT
+   =================================== */
+
+.camping-tent {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.tent-main {
+    width: 0;
+    height: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+    border-bottom: 100px solid var(--orange);
+    position: relative;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.tent-main::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 0;
+    border-bottom: 100px solid #D55A2E;
+    top: 0;
+    left: -30px;
+}
+
+.tent-flag {
+    position: absolute;
+    width: 3px;
+    height: 40px;
+    background: #8B4513;
+    top: -40px;
+    left: -1.5px;
+}
+
+.tent-flag::after {
+    content: '🚩';
+    position: absolute;
+    top: -15px;
+    left: 3px;
+    font-size: 16px;
+}
+
+/* ===================================
+   🔥 CSS CAMPFIRE
+   =================================== */
+
+.campfire {
+    position: fixed;
+    bottom: 60px;
+    left: calc(50% + 100px);
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.fire-base {
+    position: relative;
+    width: 60px;
+    height: 20px;
+}
+
+.fire-log {
+    position: absolute;
+    width: 50px;
+    height: 8px;
+    background: #8B4513;
+    border-radius: 4px;
+}
+
+.fire-log:nth-child(1) {
+    transform: rotate(-15deg);
+    left: 0;
+}
+
+.fire-log:nth-child(2) {
+    transform: rotate(15deg);
+    right: 0;
+}
+
+.fire-flame {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 40px;
+    background: linear-gradient(to top, #FF6B35 0%, #FFA500 50%, #FFD700 100%);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    animation: flicker 1.5s ease-in-out infinite;
+}
+
+.fire-flame::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 25px;
+    background: linear-gradient(to top, #FFA500 0%, #FFD700 100%);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    animation: flicker 1s ease-in-out infinite reverse;
+}
+
+@keyframes flicker {
+    0%, 100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+    25% {
+        transform: translateX(-48%) scale(1.05);
+        opacity: 0.9;
+    }
+    50% {
+        transform: translateX(-52%) scale(0.95);
+        opacity: 1;
+    }
+    75% {
+        transform: translateX(-50%) scale(1.02);
+        opacity: 0.95;
+    }
 }

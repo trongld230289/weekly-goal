@@ -24,9 +24,6 @@ const App = {
     init() {
         console.log('🌸 Initializing Weekly Planner...');
         
-        // Initialize modules
-        Theme.init();
-        
         // Load saved week or use current week
         const savedWeek = Storage.load(Storage.KEYS.CURRENT_WEEK);
         if (savedWeek) {
