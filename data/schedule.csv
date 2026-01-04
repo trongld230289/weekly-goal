@@ -1,0 +1,59 @@
+Weekly Planner Export
+
+Week Date,2024-01-05T00:00:00.000Z
+
+SCHEDULE
+Day,Time,Activity,Category,Reminder
+Monday,06:00,Morning Workout,workout,Yes
+Monday,08:00,Breakfast,meal,No
+Monday,09:00,Team Meeting,meeting,Yes
+Monday,12:00,Lunch,meal,No
+Monday,14:00,Coding Session,coding,No
+Monday,18:00,Dinner,meal,No
+Monday,23:00,Sleep,sleep,No
+Tuesday,06:00,Morning Yoga,selfcare,Yes
+Tuesday,09:00,Deep Work,coding,No
+Tuesday,12:00,Lunch,meal,No
+Tuesday,15:00,Learning New Tech,coding,Yes
+Wednesday,06:00,Gym,workout,Yes
+Wednesday,09:00,Project Work,coding,No
+Wednesday,12:00,Lunch,meal,No
+Wednesday,20:00,Self Care,selfcare,No
+Thursday,06:00,Running,workout,Yes
+Thursday,09:00,Code Review,meeting,Yes
+Thursday,14:00,Development,coding,No
+Friday,06:00,Workout,workout,Yes
+Friday,09:00,Sprint Planning,meeting,Yes
+Friday,17:00,Team Socializing,other,No
+Saturday,08:00,Morning Walk,selfcare,No
+Saturday,10:00,Personal Project,coding,No
+Saturday,14:00,Hobby Time,other,No
+Sunday,09:00,Meditation,selfcare,No
+Sunday,11:00,Weekly Review,other,No
+Sunday,15:00,Meal Prep,meal,No
+
+WORK GOALS
+Goal,Completed
+Complete feature X implementation,No
+Review pull requests,Yes
+Update documentation,No
+Fix critical bugs,Yes
+Prepare presentation,No
+
+ME GOALS
+Goal,Completed
+Exercise 5 times this week,No
+Read 1 chapter daily,Yes
+Meditate 10 minutes daily,No
+Drink 8 glasses of water,Yes
+Sleep before 11 PM,No
+
+RETRO
+This week went well overall. Completed most coding tasks on time.
+Need to improve time management for meetings.
+Should allocate more time for self-care activities.
+
+NOTES
+Remember to backup project files.
+Check email twice daily instead of constantly.
+Plan next week's goals on Sunday evening.
