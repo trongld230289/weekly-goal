@@ -172,12 +172,17 @@ const Storage = {
                 if (section === 'SCHEDULE') {
                     const parts = this.parseCSVLine(line);
                     if (parts.length >= 3) {
-                        const [day, time, activity, category, reminder] = parts;
+                        const day = parts[0] || '';
+                        const time = parts[1] || '';
+                        const activity = parts[2] || '';
+                        const category = parts[3] || '';
+                        const reminder = parts[4] || '';
+                        
                         if (activity) {
                             const key = `${day}-${time}`;
                             schedule[key] = {
                                 text: activity,
-                                category: category || '',
+                                category: category,
                                 reminder: reminder === 'Yes'
                             };
                         }
@@ -186,7 +191,7 @@ const Storage = {
                     const parts = this.parseCSVLine(line);
                     if (parts.length >= 1 && parts[0]) {
                         workGoals.push({
-                            id: Date.now() + Math.random(),
+                            id: crypto.randomUUID ? crypto.randomUUID() : Date.now() + Math.random(),
                             text: parts[0],
                             completed: parts[1] === 'Yes'
                         });
@@ -195,7 +200,7 @@ const Storage = {
                     const parts = this.parseCSVLine(line);
                     if (parts.length >= 1 && parts[0]) {
                         meGoals.push({
-                            id: Date.now() + Math.random(),
+                            id: crypto.randomUUID ? crypto.randomUUID() : Date.now() + Math.random(),
                             text: parts[0],
                             completed: parts[1] === 'Yes'
                         });

@@ -5,6 +5,7 @@
 const Notifications = {
     permission: false,
     reminders: [],
+    audioContext: null,
 
     // Initialize notifications
     init() {
@@ -80,7 +81,9 @@ const Notifications = {
         
         if (!reminderDate) return null;
 
-        reminderDate.setHours(parseInt(hours), parseInt(minutes) - 5, 0, 0); // 5 min before
+        // Set the time and subtract 5 minutes properly
+        reminderDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        reminderDate.setMinutes(reminderDate.getMinutes() - 5); // 5 min before
 
         const timeUntilReminder = reminderDate.getTime() - now.getTime();
 
@@ -159,22 +162,26 @@ const Notifications = {
     // Play notification sound
     playNotificationSound() {
         try {
-            // Create a simple beep sound using Web Audio API
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            // Create AudioContext only once
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
 
             oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+            gainNode.connect(this.audioContext.destination);
 
             oscillator.frequency.value = 800;
             oscillator.type = 'sine';
 
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            const currentTime = this.audioContext.currentTime;
+            gainNode.gain.setValueAtTime(0.3, currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.5);
 
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
+            oscillator.start(currentTime);
+            oscillator.stop(currentTime + 0.5);
         } catch (error) {
             console.error('Error playing sound:', error);
         }

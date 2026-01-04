@@ -200,7 +200,7 @@ const App = {
     // Add new goal
     addGoal(type) {
         const goal = {
-            id: Date.now(),
+            id: crypto.randomUUID ? crypto.randomUUID() : Date.now() + Math.random(),
             text: 'New goal...',
             completed: false
         };
