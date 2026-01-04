@@ -1467,7 +1467,7 @@ body {
 .tree-emoji {
     position: fixed;
     bottom: 0;
-    z-index: 1; /* Above background but below content */
+    z-index: 0; /* Same level as background, below content */
     opacity: 0.9;
     pointer-events: none;
 }
