@@ -3,6 +3,13 @@
 // ===================================
 
 const App = {
+    // Gantt chart time configuration
+    START_HOUR: 5,        // 5:00 AM
+    END_HOUR: 24,         // 11:00 PM (exclusive)
+    TOTAL_HOURS: 19,      // 5AM to 11PM = 19 hours
+    TOTAL_MINUTES: 1140,  // 19 * 60 minutes
+    SNAP_MINUTES: 15,     // Snap to 15-minute intervals
+    
     currentWeek: new Date(),
     currentCell: null,
     schedule: {},
@@ -52,16 +59,29 @@ const App = {
         }
     },
 
-    // Generate schedule grid with time slots (Gantt-style with 1-hour blocks)
+    // Generate schedule grid in Gantt chart format
     generateScheduleGrid() {
-        const tbody = document.getElementById('scheduleBody');
-        const thead = document.querySelector('.schedule-table thead tr');
-        tbody.innerHTML = '';
+        const ganttBody = document.getElementById('ganttBody');
+        const ganttTimeline = document.getElementById('ganttTimeline');
+        
+        if (!ganttBody || !ganttTimeline) return;
+        
+        ganttBody.innerHTML = '';
+        ganttTimeline.innerHTML = '';
 
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         
-        // Update header with dates
-        thead.innerHTML = '<th class="time-col">Time</th>';
+        // Generate time ruler (using configured hours)
+        for (let hour = this.START_HOUR; hour < this.END_HOUR; hour++) {
+            const slot = document.createElement('div');
+            slot.className = 'gantt-time-slot';
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            slot.textContent = `${displayHour}${ampm}`;
+            ganttTimeline.appendChild(slot);
+        }
+        
+        // Generate day rows
         days.forEach((day, index) => {
             const monday = this.getMonday(this.currentWeek);
             const currentDate = new Date(monday);
@@ -69,73 +89,172 @@ const App = {
             
             const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
             
-            thead.innerHTML += `
-                <th>
-                    <div class="day-header">
-                        <span class="day-name">${day}</span>
-                        <span class="day-date">${dateStr}</span>
-                    </div>
-                </th>
+            const row = document.createElement('div');
+            row.className = 'gantt-row';
+            row.dataset.day = day;
+            
+            // Day label
+            const label = document.createElement('div');
+            label.className = 'gantt-row-label';
+            label.innerHTML = `
+                <span class="day-name">${day}</span>
+                <span class="day-date">${dateStr}</span>
             `;
+            
+            // Row content (where bars will be positioned)
+            const content = document.createElement('div');
+            content.className = 'gantt-row-content';
+            content.dataset.day = day;
+            
+            // Render activity bars for this day
+            this.renderActivityBars(content, day);
+            
+            // Click to add new activity
+            content.addEventListener('click', (e) => {
+                if (!e.target.closest('.gantt-bar')) {
+                    // Calculate time based on click position
+                    const rect = content.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const percentage = clickX / rect.width;
+                    const hourOffset = Math.floor(percentage * this.TOTAL_HOURS);
+                    const hour = this.START_HOUR + hourOffset;
+                    const time = `${String(hour).padStart(2, '0')}:00`;
+                    this.openEditModal(day, time);
+                }
+            });
+            
+            row.appendChild(label);
+            row.appendChild(content);
+            ganttBody.appendChild(row);
         });
         
-        // Generate time slots from 5:00 AM to 11:00 PM (1-hour intervals for Gantt style)
-        for (let hour = 5; hour < 24; hour++) {
-            const time = `${String(hour).padStart(2, '0')}:00`;
-            const row = document.createElement('tr');
-
-            // Time cell
-            const timeCell = document.createElement('td');
-            timeCell.className = 'time-col';
-            timeCell.textContent = this.formatTime(time);
-            row.appendChild(timeCell);
-
-            // Day cells
-            days.forEach(day => {
-                const cell = document.createElement('td');
-                cell.dataset.day = day;
-                cell.dataset.time = time;
-                cell.className = 'gantt-cell';
+        // Add current time indicator
+        this.addCurrentTimeIndicator();
+    },
+    
+    // Render activity bars for a specific day
+    renderActivityBars(container, day) {
+        // Find all activities for this day
+        const dayActivities = [];
+        for (const [key, value] of Object.entries(this.schedule)) {
+            const [activityDay, time] = key.split('-');
+            if (activityDay === day) {
+                dayActivities.push({ time, ...value, key });
+            }
+        }
+        
+        // Sort by time
+        dayActivities.sort((a, b) => a.time.localeCompare(b.time));
+        
+        // Render each activity as a bar
+        dayActivities.forEach(activity => {
+            const bar = this.createActivityBar(day, activity.time, activity);
+            container.appendChild(bar);
+        });
+        
+        // Check for overlaps
+        this.checkOverlaps(container);
+    },
+    
+    // Create an activity bar element
+    createActivityBar(day, time, data) {
+        const bar = document.createElement('div');
+        bar.className = `gantt-bar category-${data.category || 'other'}`;
+        bar.dataset.day = day;
+        bar.dataset.time = time;
+        bar.draggable = true;
+        
+        // Calculate position and width
+        const { left, width } = this.calculateBarPosition(time, data.duration || 60);
+        bar.style.left = left + '%';
+        bar.style.width = width + '%';
+        
+        // Bar content
+        bar.innerHTML = `
+            <div class="resize-handle-left"></div>
+            ${this.escapeHtml(data.text)}
+            <div class="resize-handle-right"></div>
+        `;
+        
+        // Click to edit
+        bar.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('resize-handle-left') && 
+                !e.target.classList.contains('resize-handle-right')) {
+                e.stopPropagation();
+                this.openEditModal(day, time);
+            }
+        });
+        
+        return bar;
+    },
+    
+    // Calculate bar position and width based on time and duration
+    calculateBarPosition(time, duration) {
+        const [hours, minutes] = time.split(':').map(Number);
+        const startMinutes = (hours - this.START_HOUR) * 60 + minutes;
+        
+        const left = (startMinutes / this.TOTAL_MINUTES) * 100;
+        const width = (duration / this.TOTAL_MINUTES) * 100;
+        
+        return { left, width };
+    },
+    
+    // Check for overlapping activities
+    checkOverlaps(container) {
+        const bars = Array.from(container.querySelectorAll('.gantt-bar'));
+        
+        bars.forEach(bar => {
+            bar.classList.remove('overlap-warning');
+        });
+        
+        for (let i = 0; i < bars.length; i++) {
+            for (let j = i + 1; j < bars.length; j++) {
+                const bar1 = bars[i];
+                const bar2 = bars[j];
                 
-                // Check for activities starting at this hour
-                this.renderActivitiesInCell(cell, day, time);
-
-                cell.addEventListener('click', (e) => {
-                    if (!e.target.closest('.gantt-block')) {
-                        this.openEditModal(day, time);
-                    }
-                });
+                const left1 = parseFloat(bar1.style.left);
+                const width1 = parseFloat(bar1.style.width);
+                const right1 = left1 + width1;
                 
-                row.appendChild(cell);
-            });
-
-            tbody.appendChild(row);
+                const left2 = parseFloat(bar2.style.left);
+                const width2 = parseFloat(bar2.style.width);
+                const right2 = left2 + width2;
+                
+                // Check if they overlap
+                if (left1 < right2 && left2 < right1) {
+                    bar1.classList.add('overlap-warning');
+                    bar2.classList.add('overlap-warning');
+                }
+            }
         }
     },
     
-    // Render activities in a cell (Gantt-style blocks)
-    renderActivitiesInCell(cell, day, time) {
-        const cellKey = `${day}-${time}`;
-        if (this.schedule[cellKey]) {
-            const data = this.schedule[cellKey];
-            const duration = data.duration || 60;
+    // Add current time indicator
+    addCurrentTimeIndicator() {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMinutes = now.getMinutes();
+        
+        // Only show if current time is within our range
+        if (currentHour >= this.START_HOUR && currentHour < this.END_HOUR) {
+            const minutesFromStart = (currentHour - this.START_HOUR) * 60 + currentMinutes;
+            const position = (minutesFromStart / this.TOTAL_MINUTES) * 100;
             
-            const block = document.createElement('div');
-            block.className = `gantt-block category-${data.category || 'other'} duration-${duration}`;
-            block.dataset.day = day;
-            block.dataset.time = time;
-            block.draggable = true;
-            
-            // Calculate height based on duration
-            const heightPercent = (duration / 60) * 100;
-            block.style.height = `${Math.min(heightPercent, 100)}%`;
-            
-            block.innerHTML = `
-                ${this.escapeHtml(data.text)}
-                <div class="resize-handle"></div>
-            `;
-            
-            cell.appendChild(block);
+            // Add to each row
+            const rows = document.querySelectorAll('.gantt-row-content');
+            rows.forEach(row => {
+                // Check if this row is today
+                const dayName = row.dataset.day;
+                const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const todayName = daysOfWeek[now.getDay()];
+                
+                if (dayName === todayName) {
+                    const indicator = document.createElement('div');
+                    indicator.className = 'current-time-indicator';
+                    indicator.style.left = position + '%';
+                    row.appendChild(indicator);
+                }
+            });
         }
     },
 
@@ -520,106 +639,205 @@ const App = {
     },
     
     // ===================================
-    // 🎨 NEW FEATURES
+    // 🎨 GANTT CHART FEATURES
     // ===================================
     
-    // Initialize drag and drop
+    // Initialize drag and drop for Gantt chart
     initDragAndDrop() {
+        let draggedBar = null;
+        let draggedData = null;
+        let resizing = null;
+        let resizeData = null;
+        
+        // Drag start
         document.addEventListener('dragstart', (e) => {
-            if (e.target.classList.contains('gantt-block')) {
-                this.draggedElement = e.target;
-                this.draggedData = {
+            if (e.target.classList.contains('gantt-bar')) {
+                draggedBar = e.target;
+                draggedData = {
                     day: e.target.dataset.day,
                     time: e.target.dataset.time
                 };
                 e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
             }
         });
         
+        // Drag end
         document.addEventListener('dragend', (e) => {
-            if (e.target.classList.contains('gantt-block')) {
+            if (e.target.classList.contains('gantt-bar')) {
                 e.target.classList.remove('dragging');
-                this.draggedElement = null;
-                this.draggedData = null;
+                draggedBar = null;
+                draggedData = null;
             }
         });
         
+        // Drag over
         document.addEventListener('dragover', (e) => {
             e.preventDefault();
-            const cell = e.target.closest('.gantt-cell');
-            if (cell && this.draggedElement) {
-                cell.style.background = 'rgba(255, 209, 220, 0.3)';
+            const rowContent = e.target.closest('.gantt-row-content');
+            if (rowContent && draggedBar) {
+                e.dataTransfer.dropEffect = 'move';
             }
         });
         
-        document.addEventListener('dragleave', (e) => {
-            const cell = e.target.closest('.gantt-cell');
-            if (cell) {
-                cell.style.background = '';
-            }
-        });
-        
+        // Drop
         document.addEventListener('drop', (e) => {
             e.preventDefault();
-            const cell = e.target.closest('.gantt-cell');
-            if (cell && this.draggedData) {
-                cell.style.background = '';
-                const newDay = cell.dataset.day;
-                const newTime = cell.dataset.time;
+            const rowContent = e.target.closest('.gantt-row-content');
+            
+            if (rowContent && draggedData) {
+                const newDay = rowContent.dataset.day;
+                
+                // Calculate new time based on drop position
+                const rect = rowContent.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+                
+                // Snap to configured interval
+                const minutesFromStart = Math.round(percentage * this.TOTAL_MINUTES / this.SNAP_MINUTES) * this.SNAP_MINUTES;
+                const hours = Math.floor(minutesFromStart / 60) + this.START_HOUR;
+                const minutes = minutesFromStart % 60;
+                const newTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
                 
                 // Move the activity
-                const oldKey = `${this.draggedData.day}-${this.draggedData.time}`;
+                const oldKey = `${draggedData.day}-${draggedData.time}`;
                 const newKey = `${newDay}-${newTime}`;
                 
-                if (oldKey !== newKey) {
+                if (oldKey !== newKey && !this.schedule[newKey]) {
                     this.schedule[newKey] = this.schedule[oldKey];
                     delete this.schedule[oldKey];
+                    
+                    // Update reminders
+                    if (this.schedule[newKey].reminder) {
+                        Notifications.cancelReminder(draggedData.day, draggedData.time);
+                        Notifications.scheduleReminder(newDay, newTime, this.schedule[newKey].text, this.schedule[newKey].category);
+                    }
                     
                     Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
                     this.saveWeekHistory();
                     this.generateScheduleGrid();
+                } else if (this.schedule[newKey]) {
+                    // Show feedback when drop is rejected due to overlap
+                    alert('⚠️ That time slot is already occupied. Please choose a different time.');
                 }
             }
         });
         
         // Resize functionality
         document.addEventListener('mousedown', (e) => {
-            if (e.target.classList.contains('resize-handle')) {
+            if (e.target.classList.contains('resize-handle-left') || 
+                e.target.classList.contains('resize-handle-right')) {
                 e.preventDefault();
-                this.resizing = true;
-                const block = e.target.parentElement;
-                const cellKey = `${block.dataset.day}-${block.dataset.time}`;
+                e.stopPropagation();
                 
-                const startY = e.clientY;
-                const startHeight = block.offsetHeight;
+                const bar = e.target.closest('.gantt-bar');
+                const container = bar.parentElement;
+                const isLeft = e.target.classList.contains('resize-handle-left');
                 
-                const onMouseMove = (moveEvent) => {
-                    if (this.resizing) {
-                        const delta = moveEvent.clientY - startY;
-                        const newHeight = Math.max(15, Math.min(startHeight + delta, 60));
-                        block.style.height = newHeight + 'px';
-                        
-                        // Calculate new duration (snap to 15-min intervals)
-                        const newDuration = Math.round((newHeight / 60) * 60 / 15) * 15;
-                        
-                        if (this.schedule[cellKey]) {
-                            this.schedule[cellKey].duration = newDuration;
-                        }
-                    }
+                resizing = { bar, isLeft };
+                resizeData = {
+                    day: bar.dataset.day,
+                    time: bar.dataset.time,
+                    startX: e.clientX,
+                    startLeft: parseFloat(bar.style.left),
+                    startWidth: parseFloat(bar.style.width),
+                    containerWidth: container.offsetWidth
                 };
                 
-                const onMouseUp = () => {
-                    this.resizing = false;
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
+                bar.style.cursor = 'ew-resize';
+                document.body.style.cursor = 'ew-resize';
+                document.body.style.userSelect = 'none';
+            }
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (resizing && resizeData) {
+                e.preventDefault();
+                
+                const deltaX = e.clientX - resizeData.startX;
+                const deltaPercent = (deltaX / resizeData.containerWidth) * 100;
+                
+                const minutesPerPercent = this.TOTAL_MINUTES / 100;
+                
+                if (resizing.isLeft) {
+                    // Resize from left (change start time)
+                    let newLeft = resizeData.startLeft + deltaPercent;
+                    let newWidth = resizeData.startWidth - deltaPercent;
                     
-                    Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
-                    this.saveWeekHistory();
-                    this.generateScheduleGrid();
-                };
+                    // Snap to configured interval
+                    const minutes = Math.round((newLeft * minutesPerPercent) / this.SNAP_MINUTES) * this.SNAP_MINUTES;
+                    newLeft = (minutes / this.TOTAL_MINUTES) * 100;
+                    newWidth = resizeData.startLeft + resizeData.startWidth - newLeft;
+                    
+                    // Minimum duration = SNAP_MINUTES
+                    if (newWidth >= (this.SNAP_MINUTES / this.TOTAL_MINUTES) * 100) {
+                        resizing.bar.style.left = newLeft + '%';
+                        resizing.bar.style.width = newWidth + '%';
+                    }
+                } else {
+                    // Resize from right (change duration)
+                    let newWidth = resizeData.startWidth + deltaPercent;
+                    
+                    // Snap to configured interval
+                    const minutes = Math.round((newWidth * minutesPerPercent) / this.SNAP_MINUTES) * this.SNAP_MINUTES;
+                    newWidth = (minutes / this.TOTAL_MINUTES) * 100;
+                    
+                    // Minimum duration = SNAP_MINUTES
+                    if (newWidth >= (this.SNAP_MINUTES / this.TOTAL_MINUTES) * 100) {
+                        resizing.bar.style.width = newWidth + '%';
+                    }
+                }
+            }
+        });
+        
+        document.addEventListener('mouseup', (e) => {
+            if (resizing && resizeData) {
+                const bar = resizing.bar;
+                const isLeft = resizing.isLeft;
                 
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
+                bar.style.cursor = '';
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+                
+                // Calculate new time and duration
+                const newLeft = parseFloat(bar.style.left);
+                const newWidth = parseFloat(bar.style.width);
+                
+                const startMinutes = Math.round((newLeft / 100) * this.TOTAL_MINUTES);
+                const duration = Math.round((newWidth / 100) * this.TOTAL_MINUTES);
+                
+                const hours = Math.floor(startMinutes / 60) + this.START_HOUR;
+                const minutes = startMinutes % 60;
+                const newTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+                
+                // Update schedule
+                const oldKey = `${resizeData.day}-${resizeData.time}`;
+                const newKey = `${resizeData.day}-${newTime}`;
+                
+                if (isLeft && oldKey !== newKey) {
+                    // Time changed
+                    this.schedule[newKey] = { ...this.schedule[oldKey], duration };
+                    delete this.schedule[oldKey];
+                    
+                    // Update reminders
+                    if (this.schedule[newKey].reminder) {
+                        Notifications.cancelReminder(resizeData.day, resizeData.time);
+                        Notifications.scheduleReminder(resizeData.day, newTime, this.schedule[newKey].text, this.schedule[newKey].category);
+                    }
+                } else {
+                    // Only duration changed
+                    const key = `${resizeData.day}-${resizeData.time}`;
+                    if (this.schedule[key]) {
+                        this.schedule[key].duration = duration;
+                    }
+                }
+                
+                Storage.save(Storage.KEYS.SCHEDULE, this.schedule);
+                this.saveWeekHistory();
+                this.generateScheduleGrid();
+                
+                resizing = null;
+                resizeData = null;
             }
         });
     },
