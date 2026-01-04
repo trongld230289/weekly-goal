@@ -68,6 +68,7 @@ body {
     line-height: 1.6;
     transition: background 0.3s ease, color 0.3s ease;
     position: relative;
+    padding-bottom: 180px; /* Increase bottom padding to show full pine trees */
 }
 
 /* Container */
@@ -129,10 +130,10 @@ body {
 .date-picker {
     margin-top: var(--spacing-sm);
     padding: 10px 16px;
-    border: 2px solid var(--forest-green);
+    border: 1px solid #C1E1C1; /* Lighter mint border */
     border-radius: var(--radius-md);
-    background: var(--mint);
-    color: var(--forest-green);
+    background: rgba(255, 253, 208, 0.5); /* Cream with low opacity for subtle look */
+    color: #4A4A4A; /* Softer gray text instead of dark green */
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
     font-size: 14px;
@@ -146,21 +147,21 @@ body {
     cursor: pointer;
     border-radius: 4px;
     padding: 4px;
-    filter: invert(0.4) sepia(1) saturate(3) hue-rotate(80deg);
+    filter: invert(0.6) sepia(0.3) saturate(1) hue-rotate(80deg); /* Lighter, less saturated icon */
 }
 
 .date-picker:hover {
-    border-color: var(--sage-green);
-    background: var(--pastel-mint);
+    border-color: #9DC183; /* Sage green on hover */
+    background: rgba(255, 253, 208, 0.7); /* Slightly more opaque on hover */
     box-shadow: 0 3px 10px var(--shadow);
     transform: translateY(-1px);
 }
 
 .date-picker:focus {
     outline: none;
-    border-color: var(--forest-green);
-    background: var(--pastel-mint);
-    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.2);
+    border-color: #9DC183; /* Sage green on focus */
+    background: rgba(255, 253, 208, 0.8); /* Slightly more visible on focus */
+    box-shadow: 0 0 0 3px rgba(157, 193, 131, 0.2); /* Lighter focus ring */
 }
 
 /* Style the calendar dropdown for Webkit browsers (Chrome, Safari, Edge) */
@@ -176,7 +177,7 @@ body {
 .date-picker::-webkit-datetime-edit-month-field,
 .date-picker::-webkit-datetime-edit-day-field,
 .date-picker::-webkit-datetime-edit-year-field {
-    color: var(--forest-green);
+    color: #4A4A4A; /* Softer gray instead of dark green */
     padding: 2px;
 }
 
@@ -213,6 +214,7 @@ body {
     overflow-x: auto;
     overflow-y: auto;
     max-height: 80vh;
+    border-right: none; /* Remove right border when scrolling to the end */
 }
 
 /* Gantt Header - Time Ruler */
@@ -306,6 +308,7 @@ body {
     min-width: 1200px;
     min-height: 70px;
     border: 1px solid var(--border-color);
+    border-right: none; /* Remove right border */
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -1158,10 +1161,10 @@ body {
 .flatpickr-input {
     margin-top: var(--spacing-sm);
     padding: 10px 16px;
-    border: 2px solid var(--forest-green);
+    border: 1px solid #C1E1C1; /* Lighter mint border */
     border-radius: var(--radius-md);
-    background: var(--mint);
-    color: var(--forest-green);
+    background: rgba(255, 253, 208, 0.5); /* Cream with low opacity for subtle look */
+    color: #4A4A4A; /* Softer gray text */
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
     font-size: 14px;
@@ -1171,17 +1174,17 @@ body {
 }
 
 .flatpickr-input:hover {
-    border-color: var(--sage-green);
-    background: var(--pastel-mint);
+    border-color: #9DC183; /* Sage green on hover */
+    background: rgba(255, 253, 208, 0.7); /* Slightly more opaque on hover */
     box-shadow: 0 3px 10px var(--shadow);
     transform: translateY(-1px);
 }
 
 .flatpickr-input:focus {
     outline: none;
-    border-color: var(--forest-green);
-    background: var(--pastel-mint);
-    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.2);
+    border-color: #9DC183; /* Sage green on focus */
+    background: rgba(255, 253, 208, 0.8); /* Slightly more visible on focus */
+    box-shadow: 0 0 0 3px rgba(157, 193, 131, 0.2); /* Lighter focus ring */
 }
 
 /* ===================================
