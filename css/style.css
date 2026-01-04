@@ -3,31 +3,41 @@
    =================================== */
 
 :root {
-    /* Pastel Color Palette - Softer */
-    --pastel-pink: #FFD1DC;
-    --pastel-mint: #B5EAD7;
-    --pastel-lavender: #C7CEEA;
-    --pastel-cream: #FFDAB9;
-    --pastel-blue: #B4E4FF;
-    --pastel-peach: #FFDAB9;
+    /* Nature Forest Color Palette */
+    --forest-green: #2D5A27;
+    --sage-green: #9DC183;
+    --mint: #C1E1C1;
+    --cream: #FFFDD0;
+    --soft-brown: #C4A77D;
+    --sky-blue: #87CEEB;
+    --flower-pink: #FFB6C1;
+    --flower-purple: #DDA0DD;
     
-    /* Category Colors - Softer */
+    /* Pastel variants for compatibility */
+    --pastel-pink: #FFB6C1;
+    --pastel-mint: #C1E1C1;
+    --pastel-lavender: #DDA0DD;
+    --pastel-cream: #FFFDD0;
+    --pastel-blue: #87CEEB;
+    --pastel-peach: #F5DEB3;
+    
+    /* Category Colors - Nature themed */
     --workout: #FFCDB2;
-    --coding: #D5C6E0;
+    --coding: #C5B4E3;
     --selfcare: #FADCD9;
-    --sleep: #F8AFA6;
-    --meeting: #C9E4DE;
+    --sleep: #C1E1C1;
+    --meeting: #9DC183;
     --meal: #FFF1C1;
-    --other: #E5D4CE;
+    --other: #C4A77D;
     
-    /* Base Colors - Softer */
-    --bg-primary: #FDF8F9;
+    /* Base Colors - Forest themed */
+    --bg-primary: linear-gradient(135deg, #F0F8F0 0%, #E8F5E9 100%);
     --bg-secondary: #FFFFFF;
-    --text-primary: #4A4A4A;
-    --text-secondary: #888888;
-    --border-color: #F0E6EF;
-    --shadow: rgba(232, 180, 188, 0.15);
-    --accent: #E8B4BC;
+    --text-primary: #2D5A27;
+    --text-secondary: #5D7A5D;
+    --border-color: #C1E1C1;
+    --shadow: rgba(45, 90, 39, 0.12);
+    --accent: #9DC183;
     
     /* Gantt Chart Configuration */
     --gantt-total-hours: 19; /* 5AM to 11PM = 19 hours */
@@ -61,10 +71,11 @@ body.dark-mode {
 
 body {
     font-family: 'Quicksand', 'Nunito', sans-serif;
-    background: var(--bg-primary);
+    background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 50%, #E8F5E9 100%);
     color: var(--text-primary);
     line-height: 1.6;
     transition: background 0.3s ease, color 0.3s ease;
+    position: relative;
 }
 
 /* Theme Toggle */
@@ -105,11 +116,12 @@ body {
 
 /* Header */
 .header {
-    background: var(--bg-secondary);
+    background: linear-gradient(135deg, var(--sky-blue) 0%, var(--mint) 100%);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
     box-shadow: 0 4px 15px var(--shadow);
+    border: 2px solid var(--border-color);
 }
 
 .week-nav {
@@ -132,13 +144,13 @@ body {
 }
 
 .nav-btn {
-    background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-lavender));
+    background: linear-gradient(135deg, var(--sage-green), var(--mint));
     border: none;
     border-radius: var(--radius-md);
     padding: 12px 24px;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
-    color: var(--text-primary);
+    color: white;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 10px var(--shadow);
@@ -174,6 +186,7 @@ body {
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
     box-shadow: 0 4px 15px var(--shadow);
+    border: 2px solid var(--border-color);
     overflow: hidden;
 }
 
@@ -202,12 +215,13 @@ body {
     padding: var(--spacing-sm);
     font-weight: 700;
     color: var(--text-primary);
-    background: linear-gradient(135deg, var(--pastel-mint), var(--pastel-blue));
+    background: linear-gradient(135deg, var(--sage-green), var(--mint));
     border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: var(--spacing-sm);
+    box-shadow: 0 2px 8px var(--shadow);
 }
 
 .gantt-timeline {
@@ -224,7 +238,7 @@ body {
     font-size: 11px;
     font-weight: 600;
     color: var(--text-primary);
-    background: linear-gradient(135deg, var(--pastel-lavender), var(--pastel-pink));
+    background: linear-gradient(135deg, var(--sky-blue), var(--mint));
     border-radius: var(--radius-sm);
     white-space: nowrap;
 }
@@ -246,7 +260,7 @@ body {
     min-width: 120px;
     width: 120px;
     padding: var(--spacing-md);
-    background: linear-gradient(135deg, var(--pastel-mint), var(--pastel-blue));
+    background: linear-gradient(135deg, var(--sage-green), var(--mint));
     border-radius: var(--radius-md);
     margin-right: var(--spacing-sm);
     display: flex;
@@ -281,7 +295,7 @@ body {
 }
 
 .gantt-row-content:hover {
-    background: rgba(232, 180, 188, 0.08);
+    background: rgba(157, 193, 131, 0.12);
 }
 
 /* Time Grid Background */
@@ -388,7 +402,7 @@ body {
     border-radius: 50%;
 }
 
-/* Category Colors - Softer */
+/* Category Colors - Nature themed */
 .category-workout { background: var(--workout) !important; }
 .category-coding { background: var(--coding) !important; }
 .category-selfcare { background: var(--selfcare) !important; }
@@ -415,6 +429,7 @@ body {
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
     box-shadow: 0 4px 15px var(--shadow);
+    border: 2px solid var(--border-color);
 }
 
 .goal-card h2 {
@@ -491,10 +506,10 @@ body {
 .add-goal-btn {
     width: 100%;
     padding: var(--spacing-sm);
-    background: linear-gradient(135deg, var(--pastel-mint), var(--pastel-blue));
+    background: linear-gradient(135deg, var(--sage-green), var(--mint));
     border: none;
     border-radius: var(--radius-md);
-    color: var(--text-primary);
+    color: white;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
     cursor: pointer;
@@ -519,6 +534,7 @@ body {
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
     box-shadow: 0 4px 15px var(--shadow);
+    border: 2px solid var(--border-color);
 }
 
 .notes-card h2 {
@@ -568,17 +584,17 @@ body {
 }
 
 .export-btn {
-    background: linear-gradient(135deg, var(--pastel-mint), var(--pastel-blue));
-    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--sage-green), var(--mint));
+    color: white;
 }
 
 .import-btn {
-    background: linear-gradient(135deg, var(--pastel-lavender), var(--pastel-pink));
-    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--flower-purple), var(--flower-pink));
+    color: white;
 }
 
 .notification-btn {
-    background: linear-gradient(135deg, var(--pastel-cream), var(--pastel-peach));
+    background: linear-gradient(135deg, var(--cream), var(--pastel-peach));
     color: var(--text-primary);
 }
 
@@ -593,6 +609,7 @@ body {
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
     box-shadow: 0 4px 15px var(--shadow);
+    border: 2px solid var(--border-color);
     margin-bottom: var(--spacing-lg);
 }
 
@@ -744,8 +761,8 @@ body {
 }
 
 .save-btn {
-    background: linear-gradient(135deg, var(--pastel-mint), var(--pastel-blue));
-    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--sage-green), var(--mint));
+    color: white;
 }
 
 .delete-btn {
@@ -853,12 +870,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--pastel-pink);
+    background: var(--sage-green);
     border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--pastel-lavender);
+    background: var(--forest-green);
 }
 
 /* Animations */
@@ -881,12 +898,12 @@ body {
 .copy-week-btn {
     margin-top: var(--spacing-sm);
     padding: 8px 16px;
-    background: linear-gradient(135deg, var(--pastel-mint), var(--pastel-blue));
+    background: linear-gradient(135deg, var(--sage-green), var(--mint));
     border: none;
     border-radius: var(--radius-md);
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
-    color: var(--text-primary);
+    color: white;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 10px var(--shadow);
@@ -917,7 +934,7 @@ body {
 }
 
 /* ===================================
-   🌸 ANIMATED BACKGROUND - MORE SUBTLE
+   🌲 NATURE FOREST ANIMATED BACKGROUND
    =================================== */
 
 .animated-background {
@@ -931,161 +948,161 @@ body {
     overflow: hidden;
 }
 
-/* Clouds - Smaller and More Subtle */
+/* Clouds - Larger and More Visible */
 .cloud {
     position: absolute;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.85);
     border-radius: 100px;
     opacity: 0;
     transition: opacity 0.5s ease;
 }
 
 body:not(.dark-mode) .cloud {
-    opacity: 0.3;
+    opacity: 0.9;
 }
 
 .cloud::before,
 .cloud::after {
     content: '';
     position: absolute;
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.85);
     border-radius: 100px;
 }
 
 .cloud-1 {
-    width: 60px;
-    height: 25px;
+    width: 100px;
+    height: 45px;
     top: 8%;
-    left: -60px;
+    left: -100px;
     animation: floatCloud1 80s linear infinite;
 }
 
 .cloud-1::before {
-    width: 30px;
-    height: 30px;
-    top: -15px;
-    left: 8px;
+    width: 50px;
+    height: 50px;
+    top: -25px;
+    left: 15px;
 }
 
 .cloud-1::after {
-    width: 35px;
-    height: 25px;
-    top: -10px;
-    right: 8px;
+    width: 60px;
+    height: 45px;
+    top: -20px;
+    right: 15px;
 }
 
 .cloud-2 {
-    width: 70px;
-    height: 30px;
+    width: 120px;
+    height: 50px;
     top: 25%;
-    left: -70px;
+    left: -120px;
     animation: floatCloud2 100s linear infinite;
     animation-delay: 30s;
 }
 
 .cloud-2::before {
-    width: 35px;
-    height: 35px;
-    top: -18px;
-    left: 10px;
+    width: 60px;
+    height: 60px;
+    top: -30px;
+    left: 20px;
 }
 
 .cloud-2::after {
-    width: 40px;
-    height: 30px;
-    top: -12px;
-    right: 10px;
+    width: 70px;
+    height: 50px;
+    top: -22px;
+    right: 20px;
 }
 
 .cloud-3 {
-    width: 55px;
-    height: 22px;
+    width: 90px;
+    height: 40px;
     top: 50%;
-    left: -55px;
+    left: -90px;
     animation: floatCloud3 90s linear infinite;
     animation-delay: 60s;
 }
 
 .cloud-3::before {
-    width: 28px;
-    height: 28px;
-    top: -12px;
-    left: 8px;
+    width: 45px;
+    height: 45px;
+    top: -20px;
+    left: 12px;
 }
 
 .cloud-3::after {
-    width: 32px;
-    height: 22px;
-    top: -8px;
-    right: 8px;
+    width: 50px;
+    height: 40px;
+    top: -15px;
+    right: 12px;
 }
 
 @keyframes floatCloud1 {
-    0% { left: -60px; }
+    0% { left: -100px; }
     100% { left: 110%; }
 }
 
 @keyframes floatCloud2 {
-    0% { left: -70px; }
+    0% { left: -120px; }
     100% { left: 110%; }
 }
 
 @keyframes floatCloud3 {
-    0% { left: -55px; }
+    0% { left: -90px; }
     100% { left: 110%; }
 }
 
-/* Birds - Smaller */
+/* Birds transformed to Butterflies */
 .bird {
     position: absolute;
-    font-size: 16px;
+    font-size: 24px;
     opacity: 0;
     transition: opacity 0.5s ease;
 }
 
 body:not(.dark-mode) .bird {
-    opacity: 0.5;
+    opacity: 0.7;
 }
 
 .bird-1 {
     top: 12%;
-    left: -20px;
-    animation: flyBird1 70s linear infinite;
+    left: -30px;
+    animation: flyButterfly1 70s linear infinite;
 }
 
 .bird-2 {
     top: 20%;
-    left: -20px;
-    animation: flyBird2 80s linear infinite;
+    left: -30px;
+    animation: flyButterfly2 80s linear infinite;
     animation-delay: 25s;
 }
 
-@keyframes flyBird1 {
-    0% { left: -20px; transform: translateY(0); }
-    25% { transform: translateY(-15px); }
-    50% { transform: translateY(0); }
-    75% { transform: translateY(-10px); }
-    100% { left: 110%; transform: translateY(0); }
+@keyframes flyButterfly1 {
+    0% { left: -30px; transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-25px) rotate(10deg); }
+    50% { transform: translateY(0) rotate(-10deg); }
+    75% { transform: translateY(-20px) rotate(5deg); }
+    100% { left: 110%; transform: translateY(0) rotate(0deg); }
 }
 
-@keyframes flyBird2 {
-    0% { left: -20px; transform: translateY(0); }
-    30% { transform: translateY(-18px); }
-    60% { transform: translateY(0); }
-    80% { transform: translateY(-12px); }
-    100% { left: 110%; transform: translateY(0); }
+@keyframes flyButterfly2 {
+    0% { left: -30px; transform: translateY(0) rotate(0deg); }
+    30% { transform: translateY(-30px) rotate(-10deg); }
+    60% { transform: translateY(0) rotate(10deg); }
+    80% { transform: translateY(-22px) rotate(-5deg); }
+    100% { left: 110%; transform: translateY(0) rotate(0deg); }
 }
 
-/* Flowers - Smaller and Fewer */
+/* Flowers - Larger and More */
 .flower {
     position: absolute;
-    font-size: 20px;
+    font-size: 32px;
     opacity: 0;
     transition: opacity 0.5s ease;
 }
 
 body:not(.dark-mode) .flower {
-    opacity: 0.4;
+    opacity: 0.8;
     animation: bobFlower 4s ease-in-out infinite;
 }
 
@@ -1107,16 +1124,17 @@ body:not(.dark-mode) .flower {
 }
 
 @keyframes bobFlower {
-    0%, 100% { transform: translateY(0) rotate(-5deg); }
-    50% { transform: translateY(-8px) rotate(5deg); }
+    0%, 100% { transform: translateY(0) rotate(-5deg) scale(1); }
+    50% { transform: translateY(-12px) rotate(5deg) scale(1.05); }
 }
 
-/* Sparkles - More Subtle */
+/* Sparkles - Yellow/Green tones */
 .sparkle {
     position: absolute;
-    font-size: 14px;
+    font-size: 18px;
     opacity: 0;
     transition: opacity 0.5s ease;
+    color: #F4E04D; /* Yellow-green color instead of filter */
 }
 
 body:not(.dark-mode) .sparkle {
@@ -1142,7 +1160,143 @@ body:not(.dark-mode) .sparkle {
 
 @keyframes twinkleSparkle {
     0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
-    50% { opacity: 0.5; transform: scale(1) rotate(180deg); }
+    50% { opacity: 0.7; transform: scale(1.2) rotate(180deg); }
+}
+
+/* Pine Trees at Footer */
+.pine-tree {
+    position: fixed;
+    font-size: 80px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 0;
+    color: var(--forest-green);
+}
+
+body:not(.dark-mode) .pine-tree {
+    opacity: 0.3;
+}
+
+.pine-tree-1 {
+    bottom: -10px;
+    left: 5%;
+}
+
+.pine-tree-2 {
+    bottom: -10px;
+    right: 5%;
+}
+
+/* Falling Leaves */
+.falling-leaf {
+    position: absolute;
+    font-size: 20px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+body:not(.dark-mode) .falling-leaf {
+    animation: fallLeaf 12s ease-in infinite;
+}
+
+.falling-leaf-1 {
+    left: 15%;
+    animation-delay: 0s;
+}
+
+.falling-leaf-2 {
+    left: 35%;
+    animation-delay: 4s;
+}
+
+.falling-leaf-3 {
+    left: 55%;
+    animation-delay: 8s;
+}
+
+.falling-leaf-4 {
+    left: 75%;
+    animation-delay: 2s;
+}
+
+.falling-leaf-5 {
+    left: 90%;
+    animation-delay: 6s;
+}
+
+@keyframes fallLeaf {
+    0% {
+        top: -30px;
+        opacity: 0;
+        transform: rotate(0deg);
+    }
+    10% {
+        opacity: 0.8;
+    }
+    100% {
+        top: 110vh;
+        opacity: 0;
+        transform: rotate(720deg) translateX(100px);
+    }
+}
+
+/* Decorative Vines */
+.vine {
+    position: fixed;
+    width: 60px;
+    height: 150px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    background: linear-gradient(to bottom, transparent, var(--sage-green), transparent);
+    border-radius: 50px;
+    z-index: 0;
+}
+
+body:not(.dark-mode) .vine {
+    opacity: 0.2;
+}
+
+.vine-1 {
+    top: 0;
+    left: 0;
+    transform: rotate(15deg);
+}
+
+.vine-2 {
+    top: 0;
+    right: 0;
+    transform: rotate(-15deg);
+}
+
+/* Additional Flowers */
+.flower-4 {
+    bottom: 15%;
+    left: 25%;
+    animation-delay: 0.5s;
+}
+
+.flower-5 {
+    bottom: 20%;
+    right: 30%;
+    animation-delay: 2s;
+}
+
+.flower-6 {
+    bottom: 10%;
+    left: 70%;
+    animation-delay: 2.5s;
+}
+
+.flower-7 {
+    bottom: 5%;
+    right: 50%;
+    animation-delay: 1s;
+}
+
+.flower-8 {
+    bottom: 18%;
+    left: 40%;
+    animation-delay: 3.5s;
 }
 
 /* ===================================
