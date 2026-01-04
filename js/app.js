@@ -98,7 +98,7 @@ const App = {
             const currentDate = new Date(monday);
             currentDate.setDate(monday.getDate() + index);
             
-            const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
+            const dateStr = `${String(currentDate.getDate()).padStart(2, '0')}/${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
             
             const row = document.createElement('div');
             row.className = 'gantt-row';
@@ -485,11 +485,14 @@ const App = {
     updateWeekDisplay() {
         const weekNum = this.getWeekNumber(this.currentWeek);
         const monday = this.getMonday(this.currentWeek);
-        const monthName = monday.toLocaleString('default', { month: 'long' });
-        const day = monday.getDate();
+        const day = String(monday.getDate()).padStart(2, '0');
+        const month = String(monday.getMonth() + 1).padStart(2, '0');
+        const year = monday.getFullYear();
+        
+        const standardMark = this.isStandardWeek() ? ' ⭐' : '';
         
         document.getElementById('weekTitle').textContent = 
-            `WEEK ${weekNum} - Week of: ${monthName} ${day}`;
+            `WEEK ${weekNum} - Week of: ${day}/${month}/${year}${standardMark}`;
         
         // Update Flatpickr date if initialized
         if (this.flatpickrInstance) {
@@ -504,14 +507,14 @@ const App = {
         const datePickerInput = document.getElementById('datePicker');
         
         this.flatpickrInstance = flatpickr(datePickerInput, {
-            dateFormat: "Y-m-d",
+            dateFormat: "d/m/Y",
             defaultDate: this.currentWeek,
             locale: {
                 firstDayOfWeek: 1 // Monday first
             },
             onChange: (selectedDates, dateStr) => {
                 if (selectedDates.length > 0) {
-                    this.onDateChange(dateStr);
+                    this.onDateChange(selectedDates[0]);
                 }
             }
         });
@@ -669,6 +672,9 @@ const App = {
         
         // Copy Week button
         document.getElementById('copyWeekBtn').addEventListener('click', () => this.openCopyWeekModal());
+        
+        // Toggle Standard Week button
+        document.getElementById('toggleStandardBtn').addEventListener('click', () => this.toggleStandardWeek());
         
         // Copy Week modal controls
         document.querySelectorAll('.close-copy-modal').forEach(btn => {
@@ -892,8 +898,12 @@ const App = {
     saveWeekHistory() {
         const weekKey = this.getWeekKey(this.currentWeek);
         const history = Storage.load('weekHistory', {});
-        history[weekKey] = JSON.parse(JSON.stringify(this.schedule));
-        Storage.save('weekHistory', history);
+        
+        // Only save weeks that have schedule data
+        if (Object.keys(this.schedule).length > 0) {
+            history[weekKey] = JSON.parse(JSON.stringify(this.schedule));
+            Storage.save('weekHistory', history);
+        }
     },
     
     // Get week key for history
@@ -902,33 +912,78 @@ const App = {
         return monday.toISOString().split('T')[0];
     },
     
+    // Toggle standard week
+    toggleStandardWeek() {
+        const weekKey = this.getWeekKey(this.currentWeek);
+        const standardWeeks = Storage.load('standardWeeks', []);
+        
+        const index = standardWeeks.indexOf(weekKey);
+        if (index > -1) {
+            // Remove from standard weeks
+            standardWeeks.splice(index, 1);
+            alert('✅ Week unmarked as standard template');
+        } else {
+            // Add to standard weeks
+            standardWeeks.push(weekKey);
+            alert('⭐ Week marked as standard template');
+        }
+        
+        Storage.save('standardWeeks', standardWeeks);
+        this.updateWeekDisplay();
+    },
+    
+    // Check if current week is standard
+    isStandardWeek(weekKey) {
+        const standardWeeks = Storage.load('standardWeeks', []);
+        return standardWeeks.includes(weekKey || this.getWeekKey(this.currentWeek));
+    },
+    
     // Open copy week modal
     openCopyWeekModal() {
         const modal = document.getElementById('copyWeekModal');
         const selector = document.getElementById('weekSelector');
         const history = Storage.load('weekHistory', {});
+        const standardWeeks = Storage.load('standardWeeks', []);
         const currentWeekKey = this.getWeekKey(this.currentWeek);
+        
+        // Get weeks that have data
+        const weeksWithData = Object.keys(history)
+            .filter(key => key !== currentWeekKey && history[key] && Object.keys(history[key]).length > 0)
+            .sort()
+            .reverse();
         
         // Populate week selector with available weeks
         selector.innerHTML = '<option value="">Select a week...</option>';
         
-        const weeks = Object.keys(history)
-            .filter(key => key !== currentWeekKey)
-            .sort()
-            .reverse();
+        let standardWeekKey = null;
         
-        weeks.forEach(weekKey => {
+        weeksWithData.forEach(weekKey => {
             const date = new Date(weekKey);
             const weekNum = this.getWeekNumber(date);
-            const formatted = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const formatted = `${day}/${month}/${year}`;
+            
+            const isStandard = standardWeeks.includes(weekKey);
+            const standardMark = isStandard ? ' ⭐' : '';
+            
             const option = document.createElement('option');
             option.value = weekKey;
-            option.textContent = `Week ${weekNum} - ${formatted}`;
+            option.textContent = `Week ${weekNum} - ${formatted}${standardMark}`;
             selector.appendChild(option);
+            
+            // Remember the first standard week for default selection
+            if (isStandard && !standardWeekKey) {
+                standardWeekKey = weekKey;
+            }
         });
         
-        if (weeks.length === 0) {
-            selector.innerHTML = '<option value="">No previous weeks available</option>';
+        if (weeksWithData.length === 0) {
+            selector.innerHTML = '<option value="">No weeks with data available</option>';
+        } else if (standardWeekKey) {
+            // Default to standard week if exists
+            selector.value = standardWeekKey;
         }
         
         modal.classList.add('active');
