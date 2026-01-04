@@ -1134,7 +1134,7 @@ body:not(.dark-mode) .flower {
     font-size: 18px;
     opacity: 0;
     transition: opacity 0.5s ease;
-    filter: hue-rotate(60deg); /* Shifts to yellow-green */
+    color: #F4E04D; /* Yellow-green color instead of filter */
 }
 
 body:not(.dark-mode) .sparkle {
