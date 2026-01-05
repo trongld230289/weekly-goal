@@ -1036,39 +1036,91 @@ body {
     box-shadow: 0 4px 15px var(--shadow);
 }
 
-/* Toggle Standard Week Button */
-.toggle-standard-btn {
-    padding: 8px 16px;
-    background: linear-gradient(135deg, var(--cream), var(--pastel-peach));
-    border: none;
-    border-radius: var(--radius-md);
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-    color: var(--text-primary);
+/* Sun Container - CSS drawn sun (no button, no emoji) */
+.sun-container {
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 10px var(--shadow);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Sun wrapper */
+.sun {
     position: relative;
+    width: 40px;
+    height: 40px;
 }
 
-.toggle-standard-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px var(--shadow);
-}
-
-.sun-icon {
-    font-size: 20px;
-    display: inline-block;
+/* Sun core - round yellow gradient */
+.sun-core {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 30% 30%, #FFEB3B, #FFC107, #FF9800);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.6);
+    z-index: 2;
     transition: all 0.3s ease;
 }
 
-.sun-icon.active {
-    animation: sunRays 10s linear infinite;
+/* Sun rays - hidden by default */
+.sun-rays {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.4s ease-out;
 }
 
-@keyframes sunRays {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* Individual ray */
+.ray {
+    position: absolute;
+    width: 6px;
+    height: 18px;
+    background: linear-gradient(to top, #FFC107, #FFEB3B, transparent);
+    border-radius: 3px;
+    left: 50%;
+    top: 50%;
+    transform-origin: center 30px;
+}
+
+/* 8 rays evenly distributed */
+.ray:nth-child(1) { transform: translateX(-50%) translateY(-30px) rotate(0deg); }
+.ray:nth-child(2) { transform: translateX(-50%) translateY(-30px) rotate(45deg); }
+.ray:nth-child(3) { transform: translateX(-50%) translateY(-30px) rotate(90deg); }
+.ray:nth-child(4) { transform: translateX(-50%) translateY(-30px) rotate(135deg); }
+.ray:nth-child(5) { transform: translateX(-50%) translateY(-30px) rotate(180deg); }
+.ray:nth-child(6) { transform: translateX(-50%) translateY(-30px) rotate(225deg); }
+.ray:nth-child(7) { transform: translateX(-50%) translateY(-30px) rotate(270deg); }
+.ray:nth-child(8) { transform: translateX(-50%) translateY(-30px) rotate(315deg); }
+
+/* ACTIVE state - rays appear */
+.sun-container.active .sun-rays {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.sun-container.active .sun-core {
+    box-shadow: 
+        0 0 30px rgba(255, 193, 7, 0.8),
+        0 0 60px rgba(255, 152, 0, 0.5);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Hover effect */
+.sun-container:hover .sun-core {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px rgba(255, 193, 7, 0.7);
 }
 
 /* Week selector in modal */
