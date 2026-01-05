@@ -241,6 +241,8 @@
                 <span class="legend-item" data-category="cooking">🍳 Cooking</span>
                 <span class="legend-item" data-category="reading">📚 Reading</span>
                 <span class="legend-item" data-category="working">💼 Working</span>
+                <span class="legend-item" data-category="event">🎉 Event</span>
+                <span class="legend-item" data-category="other">📌 Other</span>
             </div>
         </div>
     </div>
@@ -256,17 +258,16 @@
                 <label>Activity:</label>
                 <input type="text" id="activityInput" placeholder="e.g., Morning workout">
                 
-                <label>Duration (minutes):</label>
-                <select id="durationSelect">
-                    <option value="15">15 min (¼ hour)</option>
-                    <option value="30">30 min (½ hour)</option>
-                    <option value="45">45 min (¾ hour)</option>
-                    <option value="60" selected>60 min (1 hour)</option>
-                    <option value="90">90 min (1.5 hours)</option>
-                    <option value="120">120 min (2 hours)</option>
-                    <option value="180">180 min (3 hours)</option>
-                    <option value="240">240 min (4 hours)</option>
-                </select>
+                <label>Duration:</label>
+                <div class="duration-inputs" style="display: flex; gap: 10px; align-items: center;">
+                    <select id="durationHours" style="flex: 1;"></select>
+                    <span>h</span>
+                    <select id="durationMinutes" style="flex: 1;">
+                        <option value="0">00</option>
+                        <option value="30">30</option>
+                    </select>
+                    <span>m</span>
+                </div>
                 
                 <label>Category:</label>
                 <select id="categorySelect">
@@ -279,6 +280,8 @@
                     <option value="cooking">🍳 Cooking</option>
                     <option value="reading">📚 Reading</option>
                     <option value="working">💼 Working</option>
+                    <option value="event">🎉 Event</option>
+                    <option value="other">📌 Other</option>
                 </select>
                 
                 <label>

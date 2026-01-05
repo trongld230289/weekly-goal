@@ -156,6 +156,7 @@ const Notifications = {
             cooking: '🍳',
             reading: '📚',
             working: '💼',
+            event: '🎉',
             other: '📌'
         };
         return emojis[category] || '⏰';
