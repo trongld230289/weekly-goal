@@ -85,6 +85,7 @@ body {
     background: linear-gradient(135deg, var(--sky-blue) 0%, var(--mint) 100%);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
+    padding-top: 70px; /* Extra padding to avoid overlapping with fixed sun */
     margin-bottom: var(--spacing-lg);
     box-shadow: 0 4px 15px var(--shadow);
     border: 2px solid var(--border-color);
@@ -162,11 +163,15 @@ body {
     color-scheme: light;
 }
 
+/* Hide native calendar icon */
 .date-picker::-webkit-calendar-picker-indicator {
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 4px;
-    filter: invert(0.6) sepia(0.3) saturate(1) hue-rotate(80deg); /* Lighter, less saturated icon */
+    display: none;
+    -webkit-appearance: none;
+}
+
+/* Firefox support */
+.date-picker::-moz-calendar-picker-indicator {
+    display: none;
 }
 
 .date-picker:hover {
@@ -251,7 +256,7 @@ body {
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 10;
+    z-index: 100;
     border: 2px solid var(--border-color);
     font-size: 16px;
     font-weight: bold;
@@ -260,11 +265,11 @@ body {
 }
 
 .gantt-nav-arrow.prev {
-    left: -16px;
+    left: -20px;
 }
 
 .gantt-nav-arrow.next {
-    right: -16px;
+    right: -20px;
 }
 
 .gantt-nav-arrow:hover {
@@ -1084,7 +1089,7 @@ body {
     position: fixed;
     top: 20px;
     right: 30px;
-    z-index: 1000;
+    z-index: 9999;
 }
 
 /* Sun wrapper */
