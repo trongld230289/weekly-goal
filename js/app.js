@@ -942,7 +942,7 @@ const App = {
             alert('✅ Week unmarked as standard template');
         } else {
             // Remove all other standard weeks (only one allowed)
-            standardWeeks.length = 0;
+            standardWeeks.splice(0);
             // Add this week to standard weeks
             standardWeeks.push(weekKey);
             alert('⭐ Week marked as standard template');
@@ -967,6 +967,8 @@ const App = {
         const standardWeeks = Storage.load('standardWeeks', []);
         const currentWeekKey = this.getWeekKey(this.currentWeek);
         const currentMonday = this.getMonday(this.currentWeek);
+        // Reset time to midnight for date-only comparison
+        currentMonday.setHours(0, 0, 0, 0);
         
         // Get weeks that have data and are in the past
         const weeksWithData = Object.keys(history)
@@ -977,8 +979,8 @@ const App = {
                 // Check if week has data
                 if (!history[key] || Object.keys(history[key]).length === 0) return false;
                 
-                // Check if week is in the past
-                const weekDate = new Date(key);
+                // Check if week is in the past (date-only comparison)
+                const weekDate = new Date(key + 'T00:00:00');
                 return weekDate < currentMonday;
             })
             .sort()
@@ -990,7 +992,7 @@ const App = {
         let standardWeekKey = null;
         
         weeksWithData.forEach(weekKey => {
-            const date = new Date(weekKey);
+            const date = new Date(weekKey + 'T00:00:00');
             const weekNum = this.getWeekNumber(date);
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');

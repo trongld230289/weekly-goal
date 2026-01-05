@@ -131,20 +131,23 @@ body {
     position: relative;
     display: inline-block;
     margin-top: var(--spacing-sm);
+    --icon-width: 16px;
+    --icon-spacing: 12px;
+    --padding-base: 10px;
 }
 
 .date-picker-icon {
     position: absolute;
-    left: 12px;
+    left: var(--icon-spacing);
     top: 50%;
     transform: translateY(-50%);
-    font-size: 16px;
+    font-size: var(--icon-width);
     pointer-events: none;
     z-index: 1;
 }
 
 .date-picker {
-    padding: 10px 16px 10px 38px;
+    padding: 10px 16px 10px calc(var(--icon-width) + var(--icon-spacing) + var(--padding-base));
     border: 1px solid var(--mint); /* Lighter mint border */
     border-radius: var(--radius-md);
     background: rgba(255, 253, 208, 0.5); /* Cream with low opacity for subtle look */
