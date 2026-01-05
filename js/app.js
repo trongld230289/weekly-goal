@@ -57,11 +57,10 @@ const App = {
     // Load data from Google Sheets first, fallback to localStorage (week-specific)
     async loadData() {
         const weekKey = this.getWeekKey(this.currentWeek);
-        const weekStart = weekKey; // weekKey is already in YYYY-MM-DD format
         
         // Try to load from Google Sheets first
         try {
-            const sheetData = await Storage.loadScheduleFromSheet(weekStart);
+            const sheetData = await Storage.loadScheduleFromSheet(weekKey);
             if (sheetData && sheetData.length > 0) {
                 console.log('✅ Loaded schedule from Google Sheets');
                 this.schedule = Storage.sheetDataToGantt(sheetData);
@@ -82,25 +81,20 @@ const App = {
         this.meGoals = Storage.load(`${Storage.KEYS.ME_GOALS}_${weekKey}`, []);
     },
     
-    // Save data to both Google Sheets and localStorage (week-specific)
+    // Save data to localStorage as backup/cache (week-specific)
+    // Note: Full Google Sheets write integration is not yet implemented
+    // This ensures data is always cached locally for offline access
     async saveData() {
         const weekKey = this.getWeekKey(this.currentWeek);
-        const weekStart = weekKey; // weekKey is already in YYYY-MM-DD format
         
         // Save to localStorage immediately (as backup and cache)
         Storage.save(`${Storage.KEYS.SCHEDULE}_${weekKey}`, this.schedule);
         Storage.save(`${Storage.KEYS.WORK_GOALS}_${weekKey}`, this.workGoals);
         Storage.save(`${Storage.KEYS.ME_GOALS}_${weekKey}`, this.meGoals);
         
-        // Try to save to Google Sheets (async, don't block UI)
-        try {
-            // Note: For now we just save to localStorage
-            // Full Google Sheets integration would require converting schedule format
-            // and making individual API calls for each task
-            console.log('💾 Data saved to localStorage (Google Sheets integration pending)');
-        } catch (error) {
-            console.error('❌ Google Sheets save error:', error);
-        }
+        // TODO: Implement Google Sheets write integration
+        // This would require converting schedule format and making API calls for each task
+        console.log('💾 Data saved to localStorage');
     },
 
     // Generate schedule grid in Gantt chart format
