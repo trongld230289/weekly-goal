@@ -942,7 +942,7 @@ const App = {
             alert('✅ Week unmarked as standard template');
         } else {
             // Remove all other standard weeks (only one allowed)
-            standardWeeks.splice(0);
+            standardWeeks.splice(0, standardWeeks.length);
             // Add this week to standard weeks
             standardWeeks.push(weekKey);
             alert('⭐ Week marked as standard template');
@@ -959,6 +959,11 @@ const App = {
         return standardWeeks.includes(weekKey || this.getWeekKey(this.currentWeek));
     },
     
+    // Helper function to parse week key as date with timezone safety
+    parseWeekKeyAsDate(weekKey) {
+        return new Date(weekKey + 'T00:00:00');
+    },
+    
     // Open copy week modal
     openCopyWeekModal() {
         const modal = document.getElementById('copyWeekModal');
@@ -966,7 +971,8 @@ const App = {
         const history = Storage.load('weekHistory', {});
         const standardWeeks = Storage.load('standardWeeks', []);
         const currentWeekKey = this.getWeekKey(this.currentWeek);
-        const currentMonday = this.getMonday(this.currentWeek);
+        // Create a new date object to avoid mutating the original
+        const currentMonday = new Date(this.getMonday(this.currentWeek));
         // Reset time to midnight for date-only comparison
         currentMonday.setHours(0, 0, 0, 0);
         
@@ -980,7 +986,7 @@ const App = {
                 if (!history[key] || Object.keys(history[key]).length === 0) return false;
                 
                 // Check if week is in the past (date-only comparison)
-                const weekDate = new Date(key + 'T00:00:00');
+                const weekDate = this.parseWeekKeyAsDate(key);
                 return weekDate < currentMonday;
             })
             .sort()
@@ -992,7 +998,7 @@ const App = {
         let standardWeekKey = null;
         
         weeksWithData.forEach(weekKey => {
-            const date = new Date(weekKey + 'T00:00:00');
+            const date = this.parseWeekKeyAsDate(weekKey);
             const weekNum = this.getWeekNumber(date);
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
