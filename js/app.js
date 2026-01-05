@@ -499,7 +499,25 @@ const App = {
             this.flatpickrInstance.setDate(this.currentWeek, false);
         }
         
+        // Update standard button icon
+        this.updateStandardButtonIcon();
+        
         Storage.save(Storage.KEYS.CURRENT_WEEK, this.currentWeek.toISOString());
+    },
+    
+    // Update standard button icon based on current week
+    updateStandardButtonIcon() {
+        const sunIcon = document.querySelector('.sun-icon');
+        if (!sunIcon) return;
+        
+        const isStandard = this.isStandardWeek();
+        if (isStandard) {
+            sunIcon.textContent = '☀️';
+            sunIcon.classList.add('active');
+        } else {
+            sunIcon.textContent = '○';
+            sunIcon.classList.remove('active');
+        }
     },
 
     // Initialize Flatpickr
@@ -923,13 +941,16 @@ const App = {
             standardWeeks.splice(index, 1);
             alert('✅ Week unmarked as standard template');
         } else {
-            // Add to standard weeks
+            // Remove all other standard weeks (only one allowed)
+            standardWeeks.length = 0;
+            // Add this week to standard weeks
             standardWeeks.push(weekKey);
             alert('⭐ Week marked as standard template');
         }
         
         Storage.save('standardWeeks', standardWeeks);
         this.updateWeekDisplay();
+        this.updateStandardButtonIcon();
     },
     
     // Check if current week is standard
@@ -945,10 +966,21 @@ const App = {
         const history = Storage.load('weekHistory', {});
         const standardWeeks = Storage.load('standardWeeks', []);
         const currentWeekKey = this.getWeekKey(this.currentWeek);
+        const currentMonday = this.getMonday(this.currentWeek);
         
-        // Get weeks that have data
+        // Get weeks that have data and are in the past
         const weeksWithData = Object.keys(history)
-            .filter(key => key !== currentWeekKey && history[key] && Object.keys(history[key]).length > 0)
+            .filter(key => {
+                // Exclude current week
+                if (key === currentWeekKey) return false;
+                
+                // Check if week has data
+                if (!history[key] || Object.keys(history[key]).length === 0) return false;
+                
+                // Check if week is in the past
+                const weekDate = new Date(key);
+                return weekDate < currentMonday;
+            })
             .sort()
             .reverse();
         
@@ -980,9 +1012,9 @@ const App = {
         });
         
         if (weeksWithData.length === 0) {
-            selector.innerHTML = '<option value="">No weeks with data available</option>';
+            selector.innerHTML = '<option value="">No past weeks with data available</option>';
         } else if (standardWeekKey) {
-            // Default to standard week if exists
+            // Auto-select standard week if exists
             selector.value = standardWeekKey;
         }
         
