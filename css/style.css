@@ -92,21 +92,23 @@ body {
 
 .week-nav {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: var(--spacing-md);
 }
 
 .week-info {
     flex: 1;
     text-align: center;
+    width: 100%;
 }
 
 .week-info h1 {
     font-size: 24px;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
 }
 
 .nav-btn {
@@ -120,6 +122,7 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 10px var(--shadow);
+    display: none; /* Hide the nav buttons - replaced by gantt arrows */
 }
 
 .nav-btn:hover {
@@ -132,25 +135,20 @@ body {
     position: relative;
     display: inline-block;
     margin-top: var(--spacing-sm);
-    /* Icon sizing and positioning variables */
-    --icon-width: 16px;      /* Size of the calendar emoji icon */
-    --icon-spacing: 12px;    /* Left offset for icon from input edge */
-    --padding-base: 10px;    /* Additional padding after icon */
 }
 
 .date-picker-icon {
     position: absolute;
-    left: var(--icon-spacing);
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: var(--icon-width);
+    font-size: 16px;
     pointer-events: none;
     z-index: 1;
 }
 
 .date-picker {
-    /* Calculated padding: icon-width (16px) + icon-spacing (12px) + padding-base (10px) = 38px */
-    padding: 10px 16px 10px calc(var(--icon-width) + var(--icon-spacing) + var(--padding-base));
+    padding: 10px 40px 10px 16px; /* Space for icon on right */
     border: 1px solid var(--mint); /* Lighter mint border */
     border-radius: var(--radius-md);
     background: rgba(255, 253, 208, 0.5); /* Cream with low opacity for subtle look */
@@ -236,6 +234,44 @@ body {
     overflow-y: auto;
     max-height: 80vh;
     border-right: none; /* Remove right border when scrolling to the end */
+    position: relative; /* For positioning navigation arrows */
+}
+
+/* Gantt Navigation Arrows */
+.gantt-nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    border: 2px solid var(--border-color);
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.gantt-nav-arrow.prev {
+    left: -16px;
+}
+
+.gantt-nav-arrow.next {
+    right: -16px;
+}
+
+.gantt-nav-arrow:hover {
+    background: #2D5A27;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%) scale(1.1);
 }
 
 /* Gantt Header - Time Ruler */
@@ -1015,6 +1051,7 @@ body {
     gap: var(--spacing-sm);
     justify-content: center;
     margin-top: var(--spacing-sm);
+    align-items: center;
 }
 
 /* Copy Week Button */
@@ -1044,6 +1081,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: fixed;
+    top: 20px;
+    right: 30px;
+    z-index: 1000;
 }
 
 /* Sun wrapper */
@@ -1110,6 +1151,30 @@ body {
         0 0 30px rgba(255, 193, 7, 0.8),
         0 0 60px rgba(255, 152, 0, 0.5);
     animation: pulse 2s infinite;
+}
+
+/* Full page glow when sun is active */
+.sun-container.active::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        ellipse at top right,
+        rgba(255, 235, 59, 0.15) 0%,
+        rgba(255, 193, 7, 0.08) 30%,
+        transparent 70%
+    );
+    pointer-events: none;
+    z-index: -1;
+    animation: sunGlow 3s ease-in-out infinite;
+}
+
+@keyframes sunGlow {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
 }
 
 @keyframes pulse {
