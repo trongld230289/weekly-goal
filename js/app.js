@@ -489,10 +489,8 @@ const App = {
         const month = String(monday.getMonth() + 1).padStart(2, '0');
         const year = monday.getFullYear();
         
-        const standardMark = this.isStandardWeek() ? ' ⭐' : '';
-        
         document.getElementById('weekTitle').textContent = 
-            `WEEK ${weekNum} - Week of: ${day}/${month}/${year}${standardMark}`;
+            `WEEK ${weekNum} - Week of: ${day}/${month}/${year}`;
         
         // Update Flatpickr date if initialized
         if (this.flatpickrInstance) {
@@ -507,16 +505,14 @@ const App = {
     
     // Update standard button icon based on current week
     updateStandardButtonIcon() {
-        const sunIcon = document.querySelector('.sun-icon');
-        if (!sunIcon) return;
+        const sunContainer = document.querySelector('.sun-container');
+        if (!sunContainer) return;
         
         const isStandard = this.isStandardWeek();
         if (isStandard) {
-            sunIcon.textContent = '☀️';
-            sunIcon.classList.add('active');
+            sunContainer.classList.add('active');
         } else {
-            sunIcon.textContent = '○';
-            sunIcon.classList.remove('active');
+            sunContainer.classList.remove('active');
         }
     },
 
@@ -939,13 +935,13 @@ const App = {
         if (index > -1) {
             // Remove from standard weeks
             standardWeeks.splice(index, 1);
-            alert('✅ Week unmarked as standard template');
+            alert('Week unmarked as standard template');
         } else {
             // Remove all other standard weeks (only one allowed)
             standardWeeks.splice(0, standardWeeks.length);
             // Add this week to standard weeks
             standardWeeks.push(weekKey);
-            alert('⭐ Week marked as standard template');
+            alert('Week marked as standard template');
         }
         
         Storage.save('standardWeeks', standardWeeks);
@@ -1012,11 +1008,10 @@ const App = {
             const formatted = `${day}/${month}/${year}`;
             
             const isStandard = standardWeeks.includes(weekKey);
-            const standardMark = isStandard ? ' ⭐' : '';
             
             const option = document.createElement('option');
             option.value = weekKey;
-            option.textContent = `Week ${weekNum} - ${formatted}${standardMark}`;
+            option.textContent = `Week ${weekNum} - ${formatted}`;
             selector.appendChild(option);
             
             // Remember the first standard week for default selection
