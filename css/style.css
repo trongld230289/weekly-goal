@@ -293,7 +293,7 @@ input.date-picker.flatpickr-input[readonly] {
     width: 100%;
     overflow-x: auto;
     overflow-y: auto;
-    max-height: 80vh;
+    max-height: none; /* Removed max-height as requested */
     border-right: none; /* Remove right border when scrolling to the end */
     position: relative; /* For positioning navigation arrows */
 }
@@ -978,7 +978,7 @@ input.date-picker.flatpickr-input[readonly] {
     }
     
     .gantt-container {
-        max-height: 60vh;
+        max-height: none; /* Remove max-height to show all content */
     }
     
     /* Hide arrows on mobile */
@@ -1019,6 +1019,20 @@ input.date-picker.flatpickr-input[readonly] {
         width: 100%;
     }
     
+    /* Hide button text on small screens */
+    .btn-text {
+        display: none;
+    }
+    
+    .today-btn, .copy-week-btn {
+        padding: 0 15px;
+        width: 48px; /* Make them square-ish */
+    }
+    
+    .week-actions {
+        gap: 10px;
+    }
+    
     .legend-items {
         justify-content: center;
     }
@@ -1055,7 +1069,15 @@ input.date-picker.flatpickr-input[readonly] {
     }
     
     .gantt-container {
-        max-height: 50vh;
+        max-height: none; /* Remove max-height to show all content */
+    }
+    
+    /* Move sun out of the way on small screens */
+    .sun-container {
+        top: 5px;
+        right: 5px;
+        transform: scale(0.6); /* Make it smaller */
+        z-index: 1; /* Ensure it's behind header content if they overlap */
     }
 }
 
@@ -1168,10 +1190,10 @@ input.date-picker.flatpickr-input[readonly] {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: fixed;
+    position: absolute; /* Changed from fixed to absolute so it scrolls with page */
     top: 20px;
-    right: 40px;
-    z-index: 1000;
+    right: 20px;
+    z-index: 5; /* Lower z-index so it doesn't cover modals/dropdowns */
 }
 
 /* Sun wrapper */
