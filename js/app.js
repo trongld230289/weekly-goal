@@ -70,11 +70,13 @@ const App = {
     // Load data from Google Sheets first
     async loadData() {
         const weekKey = this.getWeekKey(this.currentWeek);
+        this.notesRowIndex = null; // Reset notes row index
         
         this.showLoading('Syncing with cloud...');
 
         // Try to load from Google Sheets first
         try {
+            // Load Schedule
             const sheetData = await Storage.loadScheduleFromSheet(weekKey);
             if (sheetData && sheetData.length > 0) {
                 console.log('✅ Loaded schedule from Google Sheets');
@@ -83,19 +85,41 @@ const App = {
                 Storage.save(`${Storage.KEYS.SCHEDULE}_${weekKey}`, this.schedule);
             } else {
                 // No data in sheet
-                console.log('ℹ️ No Google Sheets data found.');
+                console.log('ℹ️ No Google Sheets data found for schedule.');
                 this.schedule = {};
             }
+
+            // Load Goals
+            const goalsData = await Storage.loadGoalsFromSheet(weekKey);
+            if (goalsData && goalsData.length > 0) {
+                console.log('✅ Loaded goals from Google Sheets');
+                this.workGoals = goalsData.filter(g => g.type === 'work');
+                this.meGoals = goalsData.filter(g => g.type === 'me');
+                Storage.save(`${Storage.KEYS.WORK_GOALS}_${weekKey}`, this.workGoals);
+                Storage.save(`${Storage.KEYS.ME_GOALS}_${weekKey}`, this.meGoals);
+            } else {
+                this.workGoals = [];
+                this.meGoals = [];
+            }
+
+            // Load Notes
+            const notesData = await Storage.loadNotesFromSheet(weekKey);
+            if (notesData) {
+                console.log('✅ Loaded notes from Google Sheets');
+                this.notesRowIndex = notesData.rowIndex;
+                Storage.save(`${Storage.KEYS.RETRO}_${weekKey}`, notesData.retro || '');
+                Storage.save(`${Storage.KEYS.NOTE}_${weekKey}`, notesData.note || '');
+            }
+
         } catch (error) {
             console.error('❌ Google Sheets error:', error);
-            this.schedule = {};
+            // Fallback to localStorage
+            this.schedule = Storage.load(`${Storage.KEYS.SCHEDULE}_${weekKey}`, {});
+            this.workGoals = Storage.load(`${Storage.KEYS.WORK_GOALS}_${weekKey}`, []);
+            this.meGoals = Storage.load(`${Storage.KEYS.ME_GOALS}_${weekKey}`, []);
         } finally {
             this.hideLoading();
         }
-        
-        // Goals are still loaded from localStorage only
-        this.workGoals = Storage.load(`${Storage.KEYS.WORK_GOALS}_${weekKey}`, []);
-        this.meGoals = Storage.load(`${Storage.KEYS.ME_GOALS}_${weekKey}`, []);
     },
     
     // Save data to localStorage as backup/cache (week-specific)
@@ -234,7 +258,7 @@ const App = {
             <div class="resize-handle-left"></div>
             <span class="bar-icon" style="margin-right: 4px;">${emoji}</span>
             <span class="bar-text">${this.escapeHtml(data.text)}</span>
-            <div class="delete-btn" title="Delete">✖</div>
+            <div class="delete-icon-btn" title="Delete">✖</div>
             <div class="resize-handle-right"></div>
         `;
         
@@ -250,7 +274,7 @@ const App = {
         });
 
         // Quick delete button
-        const deleteBtn = bar.querySelector('.delete-btn');
+        const deleteBtn = bar.querySelector('.delete-icon-btn');
         if (deleteBtn) {
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -265,7 +289,7 @@ const App = {
             
             if (!e.target.classList.contains('resize-handle-left') && 
                 !e.target.classList.contains('resize-handle-right') &&
-                !e.target.classList.contains('delete-btn')) {
+                !e.target.classList.contains('delete-icon-btn')) {
                 e.stopPropagation();
                 this.openEditModal(day, time);
             }
@@ -619,7 +643,7 @@ const App = {
     },
 
     // Add new goal
-    addGoal(type) {
+    async addGoal(type) {
         const goal = {
             id: crypto.randomUUID ? crypto.randomUUID() : Date.now() + Math.random(),
             text: 'New goal...',
@@ -628,14 +652,28 @@ const App = {
 
         if (type === 'work') {
             this.workGoals.push(goal);
-            this.saveData();
         } else {
             this.meGoals.push(goal);
-            this.saveData();
         }
-
+        
+        this.saveData();
         this.renderGoals();
         
+        // Sync with Sheet
+        const weekKey = this.getWeekKey(this.currentWeek);
+        const result = await Storage.createGoalInSheet({
+            week_start: weekKey,
+            type: type,
+            text: goal.text,
+            completed: goal.completed,
+            id: goal.id
+        });
+        
+        if (result.success && result.rowIndex) {
+            goal.rowIndex = result.rowIndex;
+            this.saveData(); // Save rowIndex
+        }
+
         // Focus on the new goal
         setTimeout(() => {
             const inputs = document.querySelectorAll(`#${type}GoalsList .goal-text`);
@@ -647,47 +685,72 @@ const App = {
     },
 
     // Toggle goal completion
-    toggleGoal(type, id) {
+    async toggleGoal(type, id) {
         const goals = type === 'work' ? this.workGoals : this.meGoals;
-        const goal = goals.find(g => g.id === id);
+        const goal = goals.find(g => g.id == id);
         
         if (goal) {
             goal.completed = !goal.completed;
             
             this.saveData();
-
             this.renderGoals();
 
             // Confetti effect when completing a goal
             if (goal.completed) {
                 this.showConfetti();
             }
+            
+            // Sync with Sheet
+            if (goal.rowIndex) {
+                await Storage.updateGoalInSheet({
+                    rowIndex: goal.rowIndex,
+                    type: type,
+                    text: goal.text,
+                    completed: goal.completed
+                });
+            }
         }
     },
 
     // Update goal text
-    updateGoalText(type, id, newText) {
+    async updateGoalText(type, id, newText) {
         const goals = type === 'work' ? this.workGoals : this.meGoals;
-        const goal = goals.find(g => g.id === id);
+        const goal = goals.find(g => g.id == id);
         
         if (goal) {
             goal.text = newText;
-            
             this.saveData();
+            
+            // Sync with Sheet
+            if (goal.rowIndex) {
+                await Storage.updateGoalInSheet({
+                    rowIndex: goal.rowIndex,
+                    type: type,
+                    text: goal.text,
+                    completed: goal.completed
+                });
+            }
         }
     },
 
     // Delete goal
-    deleteGoal(type, id) {
+    async deleteGoal(type, id) {
+        let goalToDelete;
         if (type === 'work') {
-            this.workGoals = this.workGoals.filter(g => g.id !== id);
-            this.saveData();
+            goalToDelete = this.workGoals.find(g => g.id == id);
+            this.workGoals = this.workGoals.filter(g => g.id != id);
         } else {
-            this.meGoals = this.meGoals.filter(g => g.id !== id);
-            this.saveData();
+            goalToDelete = this.meGoals.find(g => g.id == id);
+            this.meGoals = this.meGoals.filter(g => g.id != id);
         }
-
+        
+        this.saveData();
         this.renderGoals();
+        
+        // Sync with Sheet
+        if (goalToDelete && goalToDelete.rowIndex) {
+            await Storage.deleteGoalFromSheet(goalToDelete.rowIndex);
+        }
     },
 
     // Load notes and retro (week-specific)
@@ -698,13 +761,25 @@ const App = {
     },
 
     // Save notes (week-specific)
-    saveNotes() {
+    async saveNotes() {
         const weekKey = this.getWeekKey(this.currentWeek);
         const retro = document.getElementById('retroText').value;
         const note = document.getElementById('noteText').value;
         
         Storage.save(`${Storage.KEYS.RETRO}_${weekKey}`, retro);
         Storage.save(`${Storage.KEYS.NOTE}_${weekKey}`, note);
+        
+        // Sync with Sheet
+        const result = await Storage.saveNoteToSheet({
+            week_start: weekKey,
+            retro: retro,
+            note: note,
+            rowIndex: this.notesRowIndex
+        });
+        
+        if (result.success && result.rowIndex) {
+            this.notesRowIndex = result.rowIndex;
+        }
     },
 
     // Update week display

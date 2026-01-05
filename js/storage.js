@@ -3,7 +3,7 @@
 // ===================================
 
 // Google Sheets API Configuration
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7xY4A_zxyxHNHpFymfMTHMhY4fxXkAinhuurGn7hqBoi4CREMbxevWlN1KYJyCUu3/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRkD0EdYNf6BSDQMNKdd_S4szmPqZkMn0ssh9wyC1QKOB0efFsF-1NbV7xLsI180t7/exec';
 
 const Storage = {
     // Keys for localStorage
@@ -404,6 +404,96 @@ const Storage = {
         } catch (error) {
             console.error('Get available weeks error:', error);
             return [];
+        }
+    },
+
+    // ===================================
+    // 🎯 GOALS & NOTES INTEGRATION
+    // ===================================
+
+    async loadGoalsFromSheet(weekStart) {
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'readGoals', week_start: weekStart })
+            });
+            const result = await response.json();
+            return result.success ? result.data : [];
+        } catch (error) {
+            console.error('Load goals error:', error);
+            return [];
+        }
+    },
+
+    async createGoalInSheet(goalData) {
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'createGoal', ...goalData })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Create goal error:', error);
+            return { success: false };
+        }
+    },
+
+    async updateGoalInSheet(goalData) {
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'updateGoal', ...goalData })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Update goal error:', error);
+            return { success: false };
+        }
+    },
+
+    async deleteGoalFromSheet(rowIndex) {
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'deleteGoal', rowIndex: rowIndex })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Delete goal error:', error);
+            return { success: false };
+        }
+    },
+
+    async loadNotesFromSheet(weekStart) {
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'readNotes', week_start: weekStart })
+            });
+            const result = await response.json();
+            return result.success ? result.data : { retro: '', note: '' };
+        } catch (error) {
+            console.error('Load notes error:', error);
+            return { retro: '', note: '' };
+        }
+    },
+
+    async saveNoteToSheet(noteData) {
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'saveNote', ...noteData })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Save note error:', error);
+            return { success: false };
         }
     },
 
