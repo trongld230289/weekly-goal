@@ -22,7 +22,7 @@ const App = {
     flatpickrInstance: null, // Flatpickr instance
 
     // Initialize the app
-    init() {
+    async init() {
         console.log('🌸 Initializing Weekly Planner...');
         
         // Load saved week or use current week
@@ -31,8 +31,8 @@ const App = {
             this.currentWeek = new Date(savedWeek);
         }
         
-        // Load saved data
-        this.loadData();
+        // Load saved data (now async with Google Sheets)
+        await this.loadData();
         
         // Generate UI
         this.generateScheduleGrid();
@@ -54,20 +54,47 @@ const App = {
         console.log('✨ Weekly Planner ready!');
     },
 
-    // Load data from localStorage (week-specific)
-    loadData() {
+    // Load data from Google Sheets first, fallback to localStorage (week-specific)
+    async loadData() {
         const weekKey = this.getWeekKey(this.currentWeek);
-        this.schedule = Storage.load(`${Storage.KEYS.SCHEDULE}_${weekKey}`, {});
+        
+        // Try to load from Google Sheets first
+        try {
+            const sheetData = await Storage.loadScheduleFromSheet(weekKey);
+            if (sheetData && sheetData.length > 0) {
+                console.log('✅ Loaded schedule from Google Sheets');
+                this.schedule = Storage.sheetDataToGantt(sheetData);
+                // Save to localStorage as cache
+                Storage.save(`${Storage.KEYS.SCHEDULE}_${weekKey}`, this.schedule);
+            } else {
+                // Fallback to localStorage
+                console.log('ℹ️ No Google Sheets data, using localStorage');
+                this.schedule = Storage.load(`${Storage.KEYS.SCHEDULE}_${weekKey}`, {});
+            }
+        } catch (error) {
+            console.error('❌ Google Sheets error, fallback to localStorage:', error);
+            this.schedule = Storage.load(`${Storage.KEYS.SCHEDULE}_${weekKey}`, {});
+        }
+        
+        // Goals are still loaded from localStorage only
         this.workGoals = Storage.load(`${Storage.KEYS.WORK_GOALS}_${weekKey}`, []);
         this.meGoals = Storage.load(`${Storage.KEYS.ME_GOALS}_${weekKey}`, []);
     },
     
-    // Save data to localStorage (week-specific)
-    saveData() {
+    // Save data to localStorage as backup/cache (week-specific)
+    // Note: Full Google Sheets write integration is not yet implemented
+    // This ensures data is always cached locally for offline access
+    async saveData() {
         const weekKey = this.getWeekKey(this.currentWeek);
+        
+        // Save to localStorage immediately (as backup and cache)
         Storage.save(`${Storage.KEYS.SCHEDULE}_${weekKey}`, this.schedule);
         Storage.save(`${Storage.KEYS.WORK_GOALS}_${weekKey}`, this.workGoals);
         Storage.save(`${Storage.KEYS.ME_GOALS}_${weekKey}`, this.meGoals);
+        
+        // TODO: Implement Google Sheets write integration
+        // This would require converting schedule format and making API calls for each task
+        console.log('💾 Data saved to localStorage');
     },
 
     // Generate schedule grid in Gantt chart format
@@ -550,35 +577,35 @@ const App = {
     },
 
     // Navigate to previous week
-    prevWeek() {
-        this.saveData(); // Save current week data
+    async prevWeek() {
+        await this.saveData(); // Save current week data
         this.saveWeekHistory(); // Save current week before switching
         this.currentWeek.setDate(this.currentWeek.getDate() - 7);
         this.updateWeekDisplay();
-        this.loadData(); // Load data for the new week
+        await this.loadData(); // Load data for the new week
         this.generateScheduleGrid();
         this.renderGoals();
         this.loadNotes();
     },
 
     // Navigate to next week
-    nextWeek() {
-        this.saveData(); // Save current week data
+    async nextWeek() {
+        await this.saveData(); // Save current week data
         this.saveWeekHistory(); // Save current week before switching
         this.currentWeek.setDate(this.currentWeek.getDate() + 7);
         this.updateWeekDisplay();
-        this.loadData(); // Load data for the new week
+        await this.loadData(); // Load data for the new week
         this.generateScheduleGrid();
         this.renderGoals();
         this.loadNotes();
     },
 
     // Handle date picker change
-    onDateChange(date) {
-        this.saveData(); // Save current week data
+    async onDateChange(date) {
+        await this.saveData(); // Save current week data
         this.currentWeek = new Date(date);
         this.updateWeekDisplay();
-        this.loadData(); // Load new week data
+        await this.loadData(); // Load new week data
         this.generateScheduleGrid();
         this.renderGoals();
         this.loadNotes();

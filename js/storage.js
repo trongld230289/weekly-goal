@@ -3,7 +3,7 @@
 // ===================================
 
 // Google Sheets API Configuration
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwOS4zN162duL7UrOLHkgV1nG-ZVhh51e_z7YSt-QJjPVNS16zZcycpNj4G-IeumM0c/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPFg_n67nunmxuh31l8KCX8-THLwtWOE7K1AmblpqXKJXs_WFvpzUYUWB43fgybnXY/exec';
 
 const Storage = {
     // Keys for localStorage
