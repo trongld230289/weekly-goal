@@ -234,6 +234,7 @@ const App = {
             <div class="resize-handle-left"></div>
             <span class="bar-icon" style="margin-right: 4px;">${emoji}</span>
             <span class="bar-text">${this.escapeHtml(data.text)}</span>
+            <div class="delete-btn" title="Delete">✖</div>
             <div class="resize-handle-right"></div>
         `;
         
@@ -248,11 +249,23 @@ const App = {
             setTimeout(() => { isDragging = false; }, 100);
         });
 
+        // Quick delete button
+        const deleteBtn = bar.querySelector('.delete-btn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm('Delete this activity?')) {
+                    this.deleteActivity(day, time);
+                }
+            });
+        }
+
         bar.addEventListener('click', (e) => {
             if (isDragging) return;
             
             if (!e.target.classList.contains('resize-handle-left') && 
-                !e.target.classList.contains('resize-handle-right')) {
+                !e.target.classList.contains('resize-handle-right') &&
+                !e.target.classList.contains('delete-btn')) {
                 e.stopPropagation();
                 this.openEditModal(day, time);
             }
@@ -534,15 +547,23 @@ const App = {
     },
 
     // Delete activity
-    async deleteActivity() {
-        if (!this.currentCell) return;
+    async deleteActivity(targetDay, targetTime) {
+        let day, time;
 
-        const { day, time } = this.currentCell;
+        if (targetDay && targetTime) {
+            day = targetDay;
+            time = targetTime;
+        } else if (this.currentCell) {
+            day = this.currentCell.day;
+            time = this.currentCell.time;
+            // Close modal immediately if open
+            this.closeEditModal();
+        } else {
+            return;
+        }
+
         const cellKey = `${day}-${time}`;
         
-        // Close modal immediately
-        this.closeEditModal();
-
         // Find the bar to show loading BEFORE we remove it from local state
         // Wait, if we want to show loading, we should keep it in the grid but marked as saving?
         // Or maybe we just show the loading state on the bar and THEN remove it after API success?
@@ -826,6 +847,66 @@ const App = {
         return colors[Math.floor(Math.random() * colors.length)];
     },
 
+    // Trigger fireworks effect
+    triggerFireworks() {
+        const colors = ['#FF0000', '#FFD700', '#FF69B4', '#00FF00', '#00FFFF', '#FF4500', '#ADFF2F'];
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        // Create multiple explosions
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                const x = centerX + (Math.random() - 0.5) * 400;
+                const y = centerY + (Math.random() - 0.5) * 300;
+                this.createExplosion(x, y, colors);
+            }, i * 150);
+        }
+    },
+
+    // Create single explosion at coordinates
+    createExplosion(x, y, colors) {
+        const particleCount = 30;
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'firework-particle';
+            document.body.appendChild(particle);
+
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.backgroundColor = color;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+
+            // Random velocity
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = 2 + Math.random() * 6;
+            const vx = Math.cos(angle) * velocity;
+            const vy = Math.sin(angle) * velocity;
+
+            let posX = x;
+            let posY = y;
+            let opacity = 1;
+
+            // Animate particle
+            const animate = () => {
+                posX += vx;
+                posY += vy;
+                opacity -= 0.02;
+
+                particle.style.left = posX + 'px';
+                particle.style.top = posY + 'px';
+                particle.style.opacity = opacity;
+
+                if (opacity > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    particle.remove();
+                }
+            };
+
+            requestAnimationFrame(animate);
+        }
+    },
+
     // Setup all event listeners
     setupEventListeners() {
         // Week navigation - both old buttons (hidden) and new arrows
@@ -840,6 +921,10 @@ const App = {
         if (prevWeekArrow) prevWeekArrow.addEventListener('click', () => this.prevWeek());
         if (nextWeekArrow) nextWeekArrow.addEventListener('click', () => this.nextWeek());
         
+        // Clear Week Button
+        const clearWeekBtn = document.getElementById('clearWeekBtn');
+        if (clearWeekBtn) clearWeekBtn.addEventListener('click', () => this.clearWeekActivities());
+
         // Note: Date picker change is now handled by Flatpickr onChange callback
 
         // Modal controls
@@ -1432,7 +1517,73 @@ const App = {
         } finally {
             this.hideLoading();
         }
-    }
+    },
+
+    // Clear all activities for the current week
+    async clearWeekActivities() {
+        if (!confirm('⚠️ Are you sure you want to delete ALL activities for this week? This cannot be undone.')) {
+            return;
+        }
+
+        // Add boom animation class to container
+        const container = document.querySelector('.gantt-container');
+        container.classList.add('boom-effect');
+        
+        // Trigger fireworks
+        this.triggerFireworks();
+
+        // Wait for animation to finish before clearing data
+        setTimeout(async () => {
+            this.showLoading('Clearing week...');
+            
+            try {
+                // Delete from Google Sheets
+                // We need to delete each task one by one or use a bulk delete if available
+                // For now, we'll iterate through local schedule and delete by rowIndex
+                // Note: Deleting rows shifts indices, so we should delete from bottom up or use IDs
+                // But our current implementation relies on row indices which might be unstable during bulk delete
+                // A better approach for now is to clear local state and let the user know
+                // Ideally, we should have a clearWeek API endpoint
+                
+                // Since we don't have a bulk delete API yet, we'll just clear local state
+                // and try to delete what we can, or warn the user.
+                // Actually, let's try to delete all tasks for this week from the sheet
+                // We can filter tasks by week_start in the sheet and delete them
+                
+                const weekKey = this.getWeekKey(this.currentWeek);
+                
+                // Collect all row indices to delete
+                const rowIndices = [];
+                for (const key in this.schedule) {
+                    if (this.schedule[key].rowIndex) {
+                        rowIndices.push(this.schedule[key].rowIndex);
+                    }
+                }
+                
+                // Sort descending to avoid index shifting issues when deleting one by one
+                rowIndices.sort((a, b) => b - a);
+                
+                // Delete from sheet (sequentially for safety)
+                for (const rowIndex of rowIndices) {
+                    await Storage.deleteTaskFromSheet(rowIndex);
+                }
+                
+                // Clear local schedule
+                this.schedule = {};
+                Notifications.clearAllReminders();
+                
+                this.saveData();
+                this.generateScheduleGrid();
+                
+            } catch (error) {
+                console.error('Error clearing week:', error);
+                alert('Failed to clear all activities from cloud.');
+            } finally {
+                this.hideLoading();
+                container.classList.remove('boom-effect');
+            }
+        }, 800); // Wait for animation (0.8s)
+    },
 };
 
 // Initialize app when DOM is ready

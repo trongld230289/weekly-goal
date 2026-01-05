@@ -150,8 +150,11 @@
         <header class="header">
             <div class="week-nav">
                 <div class="week-info">
-                    <h1 id="weekTitle">WEEK 1 - Week of: January 5</h1>
-                    <div class="week-actions">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <h1 id="weekTitle" style="margin-bottom: 0;">WEEK 1 - Week of: January 5</h1>
+                        <button id="clearWeekBtn" class="clear-week-btn" title="Delete all activities">💣</button>
+                    </div>
+                    <div class="week-actions" style="margin-top: 15px;">
                         <div class="date-picker-wrapper">
                             <input type="date" id="datePicker" class="date-picker">
                             <span class="date-picker-icon">📅</span>
