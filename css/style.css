@@ -27,8 +27,8 @@
     --coding: #C5B4E3;
     --selfcare: #FADCD9;
     --sleep: #C1E1C1;
-    --meeting: #9DC183;
-    --meal: #FFF1C1;
+    --relax: #9DC183;
+    --cooking: #FFF1C1;
     --reading: #E8C5A5;
     --working: #A8D8EA;
     
@@ -525,10 +525,25 @@ input.date-picker.flatpickr-input[readonly] {
 .category-coding { background: var(--coding) !important; }
 .category-selfcare { background: var(--selfcare) !important; }
 .category-sleep { background: var(--sleep) !important; }
-.category-meeting { background: var(--meeting) !important; }
-.category-meal { background: var(--meal) !important; }
+.category-relax { background: var(--relax) !important; }
+.category-cooking { background: var(--cooking) !important; }
 .category-reading { background: var(--reading) !important; }
 .category-working { background: var(--working) !important; }
+
+/* Free style for no category */
+.category-none { 
+    background: #F0F0F0 !important; 
+    color: #555 !important;
+    border: 1px solid #D0D0D0;
+}
+
+/* Text overflow handling for bars */
+.bar-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
 
 /* Overlap Warning */
 .gantt-bar.overlap-warning {
@@ -763,8 +778,8 @@ input.date-picker.flatpickr-input[readonly] {
 .legend-item[data-category="coding"] { background: var(--coding); color: #fff; }
 .legend-item[data-category="selfcare"] { background: var(--selfcare); color: #fff; }
 .legend-item[data-category="sleep"] { background: var(--sleep); color: #fff; }
-.legend-item[data-category="meeting"] { background: var(--meeting); color: #fff; }
-.legend-item[data-category="meal"] { background: var(--meal); color: #333; }
+.legend-item[data-category="relax"] { background: var(--relax); color: #fff; }
+.legend-item[data-category="cooking"] { background: var(--cooking); color: #333; }
 .legend-item[data-category="reading"] { background: var(--reading); color: #fff; }
 .legend-item[data-category="working"] { background: var(--working); color: #fff; }
 
@@ -1023,9 +1038,20 @@ input.date-picker.flatpickr-input[readonly] {
         max-height: none; /* Remove max-height to show all content */
     }
     
-    /* Hide arrows on mobile */
+    /* Adjust arrows for tablet/mobile instead of hiding */
     .gantt-nav-arrow {
-        display: none;
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    
+    .gantt-nav-arrow.prev {
+        left: -35px;
+    }
+    
+    .gantt-nav-arrow.next {
+        right: -35px;
     }
 }
 

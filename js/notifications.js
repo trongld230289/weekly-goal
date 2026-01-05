@@ -152,8 +152,10 @@ const Notifications = {
             coding: '💻',
             selfcare: '💆',
             sleep: '😴',
-            meeting: '👥',
-            meal: '🍽️',
+            relax: '🧘',
+            cooking: '🍳',
+            reading: '📚',
+            working: '💼',
             other: '📌'
         };
         return emojis[category] || '⏰';
