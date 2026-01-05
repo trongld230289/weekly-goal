@@ -364,17 +364,20 @@ const App = {
         durationHoursSelect.value = Math.min(h, maxHours);
         
         const durationMinutesSelect = document.getElementById('durationMinutes');
-        // Snap to 0 or 30
-        durationMinutesSelect.value = (m >= 30) ? 30 : 0;
+        // Snap to nearest 15
+        if (m >= 45) durationMinutesSelect.value = 45;
+        else if (m >= 30) durationMinutesSelect.value = 30;
+        else if (m >= 15) durationMinutesSelect.value = 15;
+        else durationMinutesSelect.value = 0;
         
         // Handle max hour constraint for minutes
         const updateMinutesState = () => {
-            const option30 = durationMinutesSelect.querySelector('option[value="30"]');
+            const options = durationMinutesSelect.querySelectorAll('option:not([value="0"])');
             if (parseInt(durationHoursSelect.value) === maxHours) {
                 durationMinutesSelect.value = 0;
-                if (option30) option30.disabled = true;
+                options.forEach(opt => opt.disabled = true);
             } else {
-                if (option30) option30.disabled = false;
+                options.forEach(opt => opt.disabled = false);
             }
         };
         
