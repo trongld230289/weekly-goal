@@ -214,7 +214,9 @@ const App = {
     // Create an activity bar element
     createActivityBar(day, time, data) {
         const bar = document.createElement('div');
-        bar.className = `gantt-bar category-${data.category || 'other'}`;
+        // Use 'none' class for empty category to apply free style
+        const categoryClass = data.category ? `category-${data.category}` : 'category-none';
+        bar.className = `gantt-bar ${categoryClass}`;
         bar.dataset.day = day;
         bar.dataset.time = time;
         bar.draggable = true;
@@ -224,10 +226,14 @@ const App = {
         bar.style.left = left + '%';
         bar.style.width = width + '%';
         
+        // Get emoji for category
+        const emoji = Notifications.getCategoryEmoji(data.category);
+        
         // Bar content
         bar.innerHTML = `
             <div class="resize-handle-left"></div>
-            ${this.escapeHtml(data.text)}
+            <span class="bar-icon" style="margin-right: 4px;">${emoji}</span>
+            <span class="bar-text">${this.escapeHtml(data.text)}</span>
             <div class="resize-handle-right"></div>
         `;
         
@@ -268,32 +274,12 @@ const App = {
     
     // Check for overlapping activities
     checkOverlaps(container) {
+        // Overlap warning logic removed as per user request
+        // Tasks are often continuous/adjacent, so overlap warnings are not needed
         const bars = Array.from(container.querySelectorAll('.gantt-bar'));
-        
         bars.forEach(bar => {
             bar.classList.remove('overlap-warning');
         });
-        
-        for (let i = 0; i < bars.length; i++) {
-            for (let j = i + 1; j < bars.length; j++) {
-                const bar1 = bars[i];
-                const bar2 = bars[j];
-                
-                const left1 = parseFloat(bar1.style.left);
-                const width1 = parseFloat(bar1.style.width);
-                const right1 = left1 + width1;
-                
-                const left2 = parseFloat(bar2.style.left);
-                const width2 = parseFloat(bar2.style.width);
-                const right2 = left2 + width2;
-                
-                // Check if they overlap
-                if (left1 < right2 && left2 < right1) {
-                    bar1.classList.add('overlap-warning');
-                    bar2.classList.add('overlap-warning');
-                }
-            }
-        }
     },
     
     // Add current time indicator
