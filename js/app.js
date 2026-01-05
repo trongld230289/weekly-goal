@@ -997,14 +997,24 @@ const App = {
                 // Exclude current week
                 if (weekKey === currentWeekKey) continue;
                 
-                // Check if week has data
+                // Get schedule data
                 const scheduleData = Storage.load(key, {});
-                if (!scheduleData || Object.keys(scheduleData).length === 0) continue;
                 
-                // Check if week is in the past (date-only comparison)
-                const weekDate = this.parseWeekKeyAsDate(weekKey);
-                if (weekDate < currentMonday) {
-                    weeksWithData.push(weekKey);
+                // Check if has actual data
+                if (scheduleData && typeof scheduleData === 'object') {
+                    // Check if object has any keys with data
+                    const hasData = Object.keys(scheduleData).some(dayKey => {
+                        const activity = scheduleData[dayKey];
+                        return activity && activity.text && activity.text.trim() !== '';
+                    });
+                    
+                    if (hasData) {
+                        // Check if week is in the past (date-only comparison)
+                        const weekDate = this.parseWeekKeyAsDate(weekKey);
+                        if (weekDate < currentMonday) {
+                            weeksWithData.push(weekKey);
+                        }
+                    }
                 }
             }
         }
@@ -1013,36 +1023,34 @@ const App = {
         weeksWithData.sort().reverse();
         
         // Populate week selector with available weeks
-        selector.innerHTML = '<option value="">Select a week...</option>';
-        
-        let standardWeekKey = null;
-        
-        weeksWithData.forEach(weekKey => {
-            const date = this.parseWeekKeyAsDate(weekKey);
-            const weekNum = this.getWeekNumber(date);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const formatted = `${day}/${month}/${year}`;
-            
-            const isStandard = standardWeeks.includes(weekKey);
-            
-            const option = document.createElement('option');
-            option.value = weekKey;
-            option.textContent = `Week ${weekNum} - ${formatted}${isStandard ? ' ⭐' : ''}`;
-            selector.appendChild(option);
-            
-            // Remember the first standard week for default selection
-            if (isStandard && !standardWeekKey) {
-                standardWeekKey = weekKey;
-            }
-        });
+        selector.innerHTML = '';
         
         if (weeksWithData.length === 0) {
             selector.innerHTML = '<option value="">No past weeks with data available</option>';
-        } else if (standardWeekKey) {
-            // Auto-select standard week if exists
-            selector.value = standardWeekKey;
+        } else {
+            selector.innerHTML = '<option value="">Select a week...</option>';
+            
+            let standardWeekKey = null;
+            
+            weeksWithData.forEach(weekKey => {
+                const date = this.parseWeekKeyAsDate(weekKey);
+                const weekNum = this.getWeekNumber(date);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const formatted = `${day}/${month}/${year}`;
+                
+                const isStandard = standardWeeks.includes(weekKey);
+                
+                const option = document.createElement('option');
+                option.value = weekKey;
+                option.textContent = `Week ${weekNum} - ${formatted}${isStandard ? ' ⭐' : ''}`;
+                if (isStandard) {
+                    option.selected = true; // Auto-select standard week
+                    standardWeekKey = weekKey;
+                }
+                selector.appendChild(option);
+            });
         }
         
         modal.classList.add('active');
