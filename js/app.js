@@ -340,7 +340,50 @@ const App = {
 
         document.getElementById('activityInput').value = textStr;
         document.getElementById('categorySelect').value = cellData.category || '';
-        document.getElementById('durationSelect').value = cellData.duration || 60;
+        
+        // Duration Logic
+        const [startHour] = time.split(':').map(Number);
+        const maxHours = 23 - startHour; // Max end time is 23:00
+        
+        const durationHoursSelect = document.getElementById('durationHours');
+        durationHoursSelect.innerHTML = '';
+        
+        // Populate hours (0 to maxHours)
+        for (let i = 0; i <= maxHours; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = i;
+            durationHoursSelect.appendChild(option);
+        }
+
+        const currentDuration = cellData.duration || 60;
+        const h = Math.floor(currentDuration / 60);
+        const m = currentDuration % 60;
+        
+        // Set values
+        durationHoursSelect.value = Math.min(h, maxHours);
+        
+        const durationMinutesSelect = document.getElementById('durationMinutes');
+        // Snap to 0 or 30
+        durationMinutesSelect.value = (m >= 30) ? 30 : 0;
+        
+        // Handle max hour constraint for minutes
+        const updateMinutesState = () => {
+            const option30 = durationMinutesSelect.querySelector('option[value="30"]');
+            if (parseInt(durationHoursSelect.value) === maxHours) {
+                durationMinutesSelect.value = 0;
+                if (option30) option30.disabled = true;
+            } else {
+                if (option30) option30.disabled = false;
+            }
+        };
+        
+        // Initial check
+        updateMinutesState();
+
+        // Add change listener
+        durationHoursSelect.onchange = updateMinutesState;
+
         document.getElementById('reminderCheck').checked = cellData.reminder || false;
 
         // Show/hide Delete button based on edit mode
@@ -371,7 +414,12 @@ const App = {
         
         const text = document.getElementById('activityInput').value.trim();
         const category = document.getElementById('categorySelect').value;
-        const duration = parseInt(document.getElementById('durationSelect').value);
+        
+        const h = parseInt(document.getElementById('durationHours').value);
+        const m = parseInt(document.getElementById('durationMinutes').value);
+        let duration = (h * 60) + m;
+        if (duration === 0) duration = 30; // Minimum duration fallback
+
         const reminder = document.getElementById('reminderCheck').checked;
 
         // Get week start date for API

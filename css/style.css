@@ -31,6 +31,8 @@
     --cooking: #FFF1C1;
     --reading: #E8C5A5;
     --working: #A8D8EA;
+    --event: #FF9AA2;
+    --other: #B0BEC5;
     
     /* Base Colors - Forest themed */
     --bg-primary: linear-gradient(135deg, #F0F8F0 0%, #E8F5E9 100%);
@@ -529,6 +531,8 @@ input.date-picker.flatpickr-input[readonly] {
 .category-cooking { background: var(--cooking) !important; }
 .category-reading { background: var(--reading) !important; }
 .category-working { background: var(--working) !important; }
+.category-event { background: var(--event) !important; }
+.category-other { background: var(--other) !important; }
 
 /* Free style for no category */
 .category-none { 
@@ -782,6 +786,8 @@ input.date-picker.flatpickr-input[readonly] {
 .legend-item[data-category="cooking"] { background: var(--cooking); color: #333; }
 .legend-item[data-category="reading"] { background: var(--reading); color: #fff; }
 .legend-item[data-category="working"] { background: var(--working); color: #fff; }
+.legend-item[data-category="event"] { background: var(--event); color: #fff; }
+.legend-item[data-category="other"] { background: var(--other); color: #fff; }
 
 /* Modal */
 .modal {
