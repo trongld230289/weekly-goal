@@ -959,7 +959,13 @@ const App = {
         return standardWeeks.includes(weekKey || this.getWeekKey(this.currentWeek));
     },
     
-    // Helper function to parse week key as date with timezone safety
+    /**
+     * Parse a week key (ISO date string) as a Date object with timezone safety
+     * @param {string} weekKey - ISO date string in format 'YYYY-MM-DD'
+     * @returns {Date} Date object with time set to midnight local time
+     * @description Appends 'T00:00:00' to ensure consistent parsing as local midnight
+     *              rather than UTC midnight, avoiding timezone-related date shifts
+     */
     parseWeekKeyAsDate(weekKey) {
         return new Date(weekKey + 'T00:00:00');
     },
