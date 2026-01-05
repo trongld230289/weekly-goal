@@ -21,6 +21,19 @@ const App = {
     weekHistory: {}, // Store history of weeks for copy feature
     flatpickrInstance: null, // Flatpickr instance
 
+    // Loading State Helpers
+    showLoading(message = 'Loading...') {
+        const overlay = document.getElementById('loadingOverlay');
+        const text = overlay.querySelector('.loading-text');
+        if (text) text.textContent = message;
+        overlay.classList.add('active');
+    },
+
+    hideLoading() {
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.classList.remove('active');
+    },
+
     // Initialize the app
     async init() {
         console.log('🌸 Initializing Weekly Planner...');
@@ -58,6 +71,8 @@ const App = {
     async loadData() {
         const weekKey = this.getWeekKey(this.currentWeek);
         
+        this.showLoading('Syncing with cloud...');
+
         // Try to load from Google Sheets first
         try {
             const sheetData = await Storage.loadScheduleFromSheet(weekKey);
@@ -74,6 +89,8 @@ const App = {
         } catch (error) {
             console.error('❌ Google Sheets error:', error);
             this.schedule = {};
+        } finally {
+            this.hideLoading();
         }
         
         // Goals are still loaded from localStorage only
@@ -374,14 +391,19 @@ const App = {
         // Get week start date for API
         const weekStart = this.getWeekKey(this.currentWeek);
 
+        // Close modal immediately to show loading on the grid
+        this.closeEditModal();
+
+        // Optimistic update
+        const oldData = this.schedule[cellKey] ? { ...this.schedule[cellKey] } : null;
+        
         if (text) {
-            const oldData = this.schedule[cellKey] || {};
             const newData = { 
                 text, 
                 category, 
                 duration, 
                 reminder, 
-                rowIndex: oldData.rowIndex // Preserve rowIndex if it exists
+                rowIndex: oldData ? oldData.rowIndex : undefined
             };
             this.schedule[cellKey] = newData;
             
@@ -389,28 +411,48 @@ const App = {
             if (reminder && Notifications.permission) {
                 Notifications.scheduleReminder(day, time, text, category);
             }
+        } else {
+            // If text is empty, treat as delete
+            if (oldData) {
+                delete this.schedule[cellKey];
+                Notifications.cancelReminder(day, time);
+            }
+        }
 
-            // Google Sheets Sync
-            const [hours, minutes] = time.split(':');
-            const startMinutes = parseInt(hours) * 60 + parseInt(minutes);
-            const endMinutes = startMinutes + duration;
-            const endHour = Math.floor(endMinutes / 60);
-            const endMin = endMinutes % 60;
-            const endTime = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+        // Render grid to show the new/updated task
+        this.generateScheduleGrid();
 
-            const taskData = {
-                week_start: weekStart,
-                day: day,
-                task: text,
-                start_time: time,
-                end_time: endTime,
-                color: '', // Add color logic if needed
-                category: category,
-                rowIndex: newData.rowIndex
-            };
+        // Find the bar to show loading state
+        // If we just deleted it (text empty), we don't show loading on the bar (it's gone)
+        // But if we added/updated, we show loading on the new bar
+        let bar = null;
+        if (text) {
+            bar = document.querySelector(`.gantt-bar[data-day="${day}"][data-time="${time}"]`);
+            if (bar) bar.classList.add('saving');
+        }
 
-            try {
-                if (newData.rowIndex) {
+        try {
+            if (text) {
+                // Google Sheets Sync
+                const [hours, minutes] = time.split(':');
+                const startMinutes = parseInt(hours) * 60 + parseInt(minutes);
+                const endMinutes = startMinutes + duration;
+                const endHour = Math.floor(endMinutes / 60);
+                const endMin = endMinutes % 60;
+                const endTime = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+
+                const taskData = {
+                    week_start: weekStart,
+                    day: day,
+                    task: text,
+                    start_time: time,
+                    end_time: endTime,
+                    color: '', // Add color logic if needed
+                    category: category,
+                    rowIndex: this.schedule[cellKey].rowIndex
+                };
+
+                if (this.schedule[cellKey].rowIndex) {
                     // Update
                     console.log('Updating task in sheet...', taskData);
                     await Storage.updateTaskInSheet(taskData);
@@ -421,26 +463,37 @@ const App = {
                     if (result && result.rowIndex) {
                         this.schedule[cellKey].rowIndex = result.rowIndex;
                         console.log('Task created with rowIndex:', result.rowIndex);
+                        // Save again to persist rowIndex
+                        this.saveData();
                     }
                 }
-            } catch (e) {
-                console.error('Error syncing with sheet:', e);
+            } else {
+                // Delete logic if text is empty
+                if (oldData && oldData.rowIndex) {
+                     await Storage.deleteTaskFromSheet(oldData.rowIndex);
+                }
             }
 
-        } else {
-            // Delete logic if text is empty
-            if (this.schedule[cellKey] && this.schedule[cellKey].rowIndex) {
-                 await Storage.deleteTaskFromSheet(this.schedule[cellKey].rowIndex);
+            // Save final state
+            this.saveData();
+            this.saveWeekHistory(); // Save to week history for copy feature
+            
+            // Remove loading state
+            if (bar) bar.classList.remove('saving');
+
+        } catch (e) {
+            console.error('Error syncing with sheet:', e);
+            alert('Failed to save changes to cloud. Please try again.');
+            
+            // Revert changes on error
+            if (oldData) {
+                this.schedule[cellKey] = oldData;
+            } else {
+                delete this.schedule[cellKey];
             }
-            delete this.schedule[cellKey];
-            Notifications.cancelReminder(day, time);
+            this.saveData();
+            this.generateScheduleGrid();
         }
-
-        // Save and refresh
-        this.saveData();
-        this.saveWeekHistory(); // Save to week history for copy feature
-        this.generateScheduleGrid();
-        this.closeEditModal();
     },
 
     // Delete activity
@@ -450,17 +503,33 @@ const App = {
         const { day, time } = this.currentCell;
         const cellKey = `${day}-${time}`;
         
-        if (this.schedule[cellKey] && this.schedule[cellKey].rowIndex) {
-             console.log('Deleting task from sheet...', this.schedule[cellKey].rowIndex);
-             await Storage.deleteTaskFromSheet(this.schedule[cellKey].rowIndex);
-        }
-
-        delete this.schedule[cellKey];
-        Notifications.cancelReminder(day, time);
-
-        this.saveData();
-        this.generateScheduleGrid();
+        // Close modal immediately
         this.closeEditModal();
+
+        // Find the bar to show loading BEFORE we remove it from local state
+        // Wait, if we want to show loading, we should keep it in the grid but marked as saving?
+        // Or maybe we just show the loading state on the bar and THEN remove it after API success?
+        // User wants "loading bông hoa" -> implies the bar should stay visible with the flower until deleted.
+        
+        const bar = document.querySelector(`.gantt-bar[data-day="${day}"][data-time="${time}"]`);
+        if (bar) bar.classList.add('saving');
+
+        try {
+            if (this.schedule[cellKey] && this.schedule[cellKey].rowIndex) {
+                 console.log('Deleting task from sheet...', this.schedule[cellKey].rowIndex);
+                 await Storage.deleteTaskFromSheet(this.schedule[cellKey].rowIndex);
+            }
+
+            delete this.schedule[cellKey];
+            Notifications.cancelReminder(day, time);
+
+            this.saveData();
+            this.generateScheduleGrid(); // This will finally remove the bar
+        } catch (e) {
+            console.error('Error deleting from sheet:', e);
+            alert('Failed to delete from cloud. Please try again.');
+            if (bar) bar.classList.remove('saving');
+        }
     },
 
     // Render goals
@@ -874,7 +943,7 @@ const App = {
         });
         
         // Drop
-        document.addEventListener('drop', (e) => {
+        document.addEventListener('drop', async (e) => {
             e.preventDefault();
             const rowContent = e.target.closest('.gantt-row-content');
             
@@ -906,36 +975,50 @@ const App = {
                         Notifications.scheduleReminder(newDay, newTime, this.schedule[newKey].text, this.schedule[newKey].category);
                     }
 
-                    // Google Sheets Sync (Update)
-                    if (this.schedule[newKey].rowIndex) {
-                        const weekStart = this.getWeekKey(this.currentWeek);
-                        const duration = this.schedule[newKey].duration || 60;
-                        
-                        const [hours, minutes] = newTime.split(':');
-                        const startMinutes = parseInt(hours) * 60 + parseInt(minutes);
-                        const endMinutes = startMinutes + duration;
-                        const endHour = Math.floor(endMinutes / 60);
-                        const endMin = endMinutes % 60;
-                        const endTime = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
-
-                        const taskData = {
-                            week_start: weekStart,
-                            day: newDay,
-                            task: this.schedule[newKey].text,
-                            start_time: newTime,
-                            end_time: endTime,
-                            color: '', 
-                            category: this.schedule[newKey].category,
-                            rowIndex: this.schedule[newKey].rowIndex
-                        };
-                        
-                        console.log('Updating moved task in sheet...', taskData);
-                        Storage.updateTaskInSheet(taskData);
-                    }
-                    
+                    // Save local state first
                     this.saveData();
                     this.saveWeekHistory();
+                    
+                    // Render immediately to show the move
                     this.generateScheduleGrid();
+
+                    // Google Sheets Sync (Update)
+                    if (this.schedule[newKey].rowIndex) {
+                        // Find the new bar element to show loading state
+                        const newBar = document.querySelector(`.gantt-bar[data-day="${newDay}"][data-time="${newTime}"]`);
+                        if (newBar) newBar.classList.add('saving');
+
+                        try {
+                            const weekStart = this.getWeekKey(this.currentWeek);
+                            const duration = this.schedule[newKey].duration || 60;
+                            
+                            const [hours, minutes] = newTime.split(':');
+                            const startMinutes = parseInt(hours) * 60 + parseInt(minutes);
+                            const endMinutes = startMinutes + duration;
+                            const endHour = Math.floor(endMinutes / 60);
+                            const endMin = endMinutes % 60;
+                            const endTime = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+
+                            const taskData = {
+                                week_start: weekStart,
+                                day: newDay,
+                                task: this.schedule[newKey].text,
+                                start_time: newTime,
+                                end_time: endTime,
+                                color: '', 
+                                category: this.schedule[newKey].category,
+                                rowIndex: this.schedule[newKey].rowIndex
+                            };
+                            
+                            console.log('Updating moved task in sheet...', taskData);
+                            await Storage.updateTaskInSheet(taskData);
+                        } catch (error) {
+                            console.error('Error updating task position:', error);
+                            alert('❌ Error updating task position in Sheet');
+                        } finally {
+                            if (newBar) newBar.classList.remove('saving');
+                        }
+                    }
                 } else if (this.schedule[newKey]) {
                     // Show feedback when drop is rejected due to overlap
                     alert('⚠️ That time slot is already occupied. Please choose a different time.');
@@ -1010,7 +1093,7 @@ const App = {
             }
         });
         
-        document.addEventListener('mouseup', (e) => {
+        document.addEventListener('mouseup', async (e) => {
             if (resizing && resizeData) {
                 const bar = resizing.bar;
                 const isLeft = resizing.isLeft;
@@ -1053,36 +1136,52 @@ const App = {
                     }
                 }
 
-                // Google Sheets Sync (Update)
-                if (this.schedule[targetKey] && this.schedule[targetKey].rowIndex) {
-                    const weekStart = this.getWeekKey(this.currentWeek);
-                    const item = this.schedule[targetKey];
-                    
-                    const [hours, minutes] = newTime.split(':');
-                    const startMinutes = parseInt(hours) * 60 + parseInt(minutes);
-                    const endMinutes = startMinutes + duration;
-                    const endHour = Math.floor(endMinutes / 60);
-                    const endMin = endMinutes % 60;
-                    const endTime = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
-
-                    const taskData = {
-                        week_start: weekStart,
-                        day: resizeData.day,
-                        task: item.text,
-                        start_time: newTime,
-                        end_time: endTime,
-                        color: '', 
-                        category: item.category,
-                        rowIndex: item.rowIndex
-                    };
-                    
-                    console.log('Updating resized task in sheet...', taskData);
-                    Storage.updateTaskInSheet(taskData);
-                }
-                
+                // Save local state first
                 this.saveData();
                 this.saveWeekHistory();
+                
+                // Render immediately to show the change
                 this.generateScheduleGrid();
+
+                // Google Sheets Sync (Update)
+                if (this.schedule[targetKey] && this.schedule[targetKey].rowIndex) {
+                    // Find the updated bar element to show loading state
+                    // Note: targetKey is the new key (day-time)
+                    const [day, time] = targetKey.split('-');
+                    const updatedBar = document.querySelector(`.gantt-bar[data-day="${day}"][data-time="${time}"]`);
+                    if (updatedBar) updatedBar.classList.add('saving');
+
+                    try {
+                        const weekStart = this.getWeekKey(this.currentWeek);
+                        const item = this.schedule[targetKey];
+                        
+                        const [hours, minutes] = newTime.split(':');
+                        const startMinutes = parseInt(hours) * 60 + parseInt(minutes);
+                        const endMinutes = startMinutes + duration;
+                        const endHour = Math.floor(endMinutes / 60);
+                        const endMin = endMinutes % 60;
+                        const endTime = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+
+                        const taskData = {
+                            week_start: weekStart,
+                            day: resizeData.day,
+                            task: item.text,
+                            start_time: newTime,
+                            end_time: endTime,
+                            color: '', 
+                            category: item.category,
+                            rowIndex: item.rowIndex
+                        };
+                        
+                        console.log('Updating resized task in sheet...', taskData);
+                        await Storage.updateTaskInSheet(taskData);
+                    } catch (error) {
+                        console.error('Error updating task duration:', error);
+                        alert('❌ Error updating task duration in Sheet');
+                    } finally {
+                        if (updatedBar) updatedBar.classList.remove('saving');
+                    }
+                }
                 
                 resizing = null;
                 resizeData = null;
@@ -1162,60 +1261,67 @@ const App = {
         const modal = document.getElementById('copyWeekModal');
         const selector = document.getElementById('weekSelector');
         
-        // Show loading state
-        selector.innerHTML = '<option>Loading weeks...</option>';
-        modal.classList.add('active');
+        this.showLoading('Fetching available weeks...');
 
-        const standardWeeks = Storage.load('standardWeeks', []);
-        const currentWeekKey = this.getWeekKey(this.currentWeek); // dd/MM/yyyy
-        
-        // Parse current week key to Date for comparison
-        const [cDay, cMonth, cYear] = currentWeekKey.split('/');
-        const currentMonday = new Date(cYear, cMonth - 1, cDay);
-        
-        // Get available weeks from Sheet
-        const allWeeks = await Storage.getAvailableWeeksFromSheet();
-        
-        // Filter for past weeks
-        const weeksWithData = allWeeks.filter(weekKey => {
-            if (weekKey === currentWeekKey) return false;
+        try {
+            const standardWeeks = Storage.load('standardWeeks', []);
+            const currentWeekKey = this.getWeekKey(this.currentWeek); // dd/MM/yyyy
             
-            const [day, month, year] = weekKey.split('/');
-            const weekDate = new Date(year, month - 1, day);
+            // Parse current week key to Date for comparison
+            const [cDay, cMonth, cYear] = currentWeekKey.split('/');
+            const currentMonday = new Date(cYear, cMonth - 1, cDay);
             
-            return weekDate < currentMonday;
-        });
-        
-        // Sort weeks in reverse chronological order (most recent first)
-        weeksWithData.sort((a, b) => {
-            const [d1, m1, y1] = a.split('/');
-            const [d2, m2, y2] = b.split('/');
-            return new Date(y2, m2 - 1, d2) - new Date(y1, m1 - 1, d1);
-        });
-        
-        // Populate week selector
-        selector.innerHTML = '';
-        
-        if (weeksWithData.length === 0) {
-            selector.innerHTML = '<option value="">No past weeks with data available</option>';
-        } else {
-            selector.innerHTML = '<option value="">Select a week...</option>';
+            // Get available weeks from Sheet
+            const allWeeks = await Storage.getAvailableWeeksFromSheet();
             
-            weeksWithData.forEach(weekKey => {
+            // Filter for past weeks
+            const weeksWithData = allWeeks.filter(weekKey => {
+                if (weekKey === currentWeekKey) return false;
+                
                 const [day, month, year] = weekKey.split('/');
-                const date = new Date(year, month - 1, day);
-                const weekNum = this.getWeekNumber(date);
+                const weekDate = new Date(year, month - 1, day);
                 
-                const isStandard = standardWeeks.includes(weekKey);
-                
-                const option = document.createElement('option');
-                option.value = weekKey;
-                option.textContent = `Week ${weekNum} - ${weekKey}${isStandard ? ' ⭐' : ''}`;
-                if (isStandard) {
-                    option.selected = true; // Auto-select standard week
-                }
-                selector.appendChild(option);
+                return weekDate < currentMonday;
             });
+            
+            // Sort weeks in reverse chronological order (most recent first)
+            weeksWithData.sort((a, b) => {
+                const [d1, m1, y1] = a.split('/');
+                const [d2, m2, y2] = b.split('/');
+                return new Date(y2, m2 - 1, d2) - new Date(y1, m1 - 1, d1);
+            });
+            
+            // Populate week selector
+            selector.innerHTML = '';
+            
+            if (weeksWithData.length === 0) {
+                selector.innerHTML = '<option value="">No past weeks with data available</option>';
+            } else {
+                selector.innerHTML = '<option value="">Select a week...</option>';
+                
+                weeksWithData.forEach(weekKey => {
+                    const [day, month, year] = weekKey.split('/');
+                    const date = new Date(year, month - 1, day);
+                    const weekNum = this.getWeekNumber(date);
+                    
+                    const isStandard = standardWeeks.includes(weekKey);
+                    
+                    const option = document.createElement('option');
+                    option.value = weekKey;
+                    option.textContent = `Week ${weekNum} - ${weekKey}${isStandard ? ' ⭐' : ''}`;
+                    if (isStandard) {
+                        option.selected = true; // Auto-select standard week
+                    }
+                    selector.appendChild(option);
+                });
+            }
+            
+            modal.classList.add('active');
+        } catch (e) {
+            console.error('Error fetching weeks:', e);
+            alert('Failed to load available weeks. Please try again.');
+        } finally {
+            this.hideLoading();
         }
     },
     
@@ -1235,10 +1341,7 @@ const App = {
             return;
         }
         
-        const confirmBtn = document.getElementById('confirmCopy');
-        const originalText = confirmBtn.textContent;
-        confirmBtn.textContent = 'Copying...';
-        confirmBtn.disabled = true;
+        this.showLoading('Copying week plan...');
         
         try {
             // Load schedule data from Sheet for the selected week
@@ -1283,7 +1386,6 @@ const App = {
                 this.generateScheduleGrid();
                 
                 this.closeCopyWeekModal();
-                alert('✅ Week plan copied successfully!');
             } else {
                 alert('⚠️ No schedule data found for the selected week');
             }
@@ -1291,8 +1393,7 @@ const App = {
             console.error('Error copying week:', error);
             alert('❌ Error copying week data');
         } finally {
-            confirmBtn.textContent = originalText;
-            confirmBtn.disabled = false;
+            this.hideLoading();
         }
     }
 };
