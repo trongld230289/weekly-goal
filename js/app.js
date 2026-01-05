@@ -614,8 +614,10 @@ const App = {
         if (nextWeekBtn) nextWeekBtn.addEventListener('click', () => this.nextWeek());
         
         // New Gantt arrow navigation
-        document.getElementById('prevWeekArrow').addEventListener('click', () => this.prevWeek());
-        document.getElementById('nextWeekArrow').addEventListener('click', () => this.nextWeek());
+        const prevWeekArrow = document.getElementById('prevWeekArrow');
+        const nextWeekArrow = document.getElementById('nextWeekArrow');
+        if (prevWeekArrow) prevWeekArrow.addEventListener('click', () => this.prevWeek());
+        if (nextWeekArrow) nextWeekArrow.addEventListener('click', () => this.nextWeek());
         
         // Note: Date picker change is now handled by Flatpickr onChange callback
 
