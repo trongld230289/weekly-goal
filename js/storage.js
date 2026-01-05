@@ -309,6 +309,9 @@ const Storage = {
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     action: 'create',
                     ...taskData
@@ -330,6 +333,9 @@ const Storage = {
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     action: 'update',
                     ...taskData
@@ -351,6 +357,9 @@ const Storage = {
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     action: 'delete',
                     rowIndex: rowIndex
@@ -374,6 +383,12 @@ const Storage = {
         sheetData.forEach(item => {
             const day = item.day;
             if (!day) return;
+            
+            // Validate start_time and end_time exist
+            if (!item.start_time || !item.end_time) {
+                console.warn('Missing start_time or end_time for task:', item.task);
+                return;
+            }
             
             // Parse start and end times
             const startTimeParts = item.start_time.split(':');
