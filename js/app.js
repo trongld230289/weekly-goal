@@ -139,8 +139,8 @@ const App = {
             ganttBody.appendChild(row);
         });
         
-        // Add current time indicator
-        this.addCurrentTimeIndicator();
+        // Current time indicator removed per requirement
+        // this.addCurrentTimeIndicator();
     },
     
     // Render activity bars for a specific day

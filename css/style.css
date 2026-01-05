@@ -69,6 +69,7 @@ body {
     transition: background 0.3s ease, color 0.3s ease;
     position: relative;
     padding-bottom: 250px; /* Increase bottom padding to show full pine trees when scrolled to bottom */
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* Container */
@@ -84,7 +85,7 @@ body {
 .header {
     background: linear-gradient(135deg, var(--sky-blue) 0%, var(--mint) 100%);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
+    padding: 20px 30px; /* Reduced height */
     padding-top: 70px; /* Extra padding to avoid overlapping with fixed sun */
     margin-bottom: var(--spacing-lg);
     box-shadow: 0 4px 15px var(--shadow);
@@ -134,13 +135,13 @@ body {
 /* Date picker wrapper with icon */
 .date-picker-wrapper {
     position: relative;
-    display: inline-block;
-    margin-top: var(--spacing-sm);
+    display: inline-flex;
+    align-items: center;
 }
 
 .date-picker-icon {
     position: absolute;
-    right: 12px;
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 16px;
@@ -149,14 +150,15 @@ body {
 }
 
 .date-picker {
-    padding: 10px 40px 10px 16px; /* Space for icon on right */
+    padding: 12px 45px 12px 20px; /* Space for icon on right */
+    height: 48px;
     border: 1px solid var(--mint); /* Lighter mint border */
-    border-radius: var(--radius-md);
+    border-radius: 25px;
     background: rgba(255, 253, 208, 0.5); /* Cream with low opacity for subtle look */
     color: #4A4A4A; /* Softer gray text instead of dark green */
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 6px var(--shadow);
@@ -235,8 +237,9 @@ body {
 /* Gantt Wrapper - Contains arrows and gantt container */
 .gantt-wrapper {
     position: relative;
-    overflow: visible;
-    padding: 0 50px; /* Space for arrows */
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
 }
 
 /* Gantt Container */
@@ -262,21 +265,21 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    z-index: 999;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
     border: 2px solid var(--border-color);
     font-size: 18px;
     font-weight: bold;
-    color: var(--text-primary);
+    color: #2D5A27;
     transition: all 0.3s ease;
 }
 
 .gantt-nav-arrow.prev {
-    left: 0;
+    left: 10px;
 }
 
 .gantt-nav-arrow.next {
-    right: 0;
+    right: 10px;
 }
 
 .gantt-nav-arrow:hover {
@@ -466,28 +469,6 @@ body {
 .gantt-bar .resize-handle-left:hover,
 .gantt-bar .resize-handle-right:hover {
     background: rgba(255, 255, 255, 0.6);
-}
-
-/* Current Time Indicator */
-.current-time-indicator {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #FF6B6B;
-    z-index: 25;
-    pointer-events: none;
-}
-
-.current-time-indicator::before {
-    content: '';
-    position: absolute;
-    top: -6px;
-    left: -4px;
-    width: 10px;
-    height: 10px;
-    background: #FF6B6B;
-    border-radius: 50%;
 }
 
 /* Category Colors - Nature themed */
@@ -1060,7 +1041,7 @@ body {
 /* Week Actions Container */
 .week-actions {
     display: flex;
-    gap: var(--spacing-sm);
+    gap: 15px;
     justify-content: center;
     margin-top: var(--spacing-sm);
     align-items: center;
@@ -1068,12 +1049,14 @@ body {
 
 /* Copy Week Button */
 .copy-week-btn {
-    padding: 8px 16px;
+    height: 48px;
+    padding: 12px 25px;
     background: linear-gradient(135deg, var(--sage-green), var(--mint));
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 25px;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
+    font-size: 16px;
     color: white;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1094,7 +1077,7 @@ body {
     align-items: center;
     justify-content: center;
     position: fixed;
-    top: 10px;
+    top: 15px;
     right: 30px;
     z-index: 9999;
 }
@@ -1116,7 +1099,7 @@ body {
     transform: translate(-50%, -50%);
     background: radial-gradient(circle at 30% 30%, #FFEB3B, #FFC107, #FF9800);
     border-radius: 50%;
-    box-shadow: 0 0 30px rgba(255, 193, 7, 0.6);
+    box-shadow: 0 0 40px rgba(255, 193, 7, 0.6);
     z-index: 2;
     transition: all 0.3s ease;
 }
@@ -1168,28 +1151,22 @@ body {
     animation: pulse 2s infinite;
 }
 
-/* Full page glow when sun is active */
+/* Full page glow when sun is active - diagonal from top right */
 .sun-container.active::after {
     content: '';
     position: fixed;
     top: 0;
-    left: 0;
     right: 0;
-    bottom: 0;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(
         135deg,
-        rgba(255, 235, 59, 0.15) 0%,
-        rgba(255, 193, 7, 0.08) 30%,
-        transparent 60%
+        rgba(255, 235, 59, 0.12) 0%,
+        rgba(255, 193, 7, 0.06) 25%,
+        transparent 50%
     );
     pointer-events: none;
     z-index: -1;
-    animation: pageGlow 3s ease-in-out infinite;
-}
-
-@keyframes pageGlow {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
 }
 
 @keyframes pulse {
