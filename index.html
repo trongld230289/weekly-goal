@@ -120,6 +120,13 @@
         </svg>
     </div>
 
+    <!-- Permanent Sun Beams (God Rays) - Moved outside container for better z-index handling -->
+    <div class="sun-beam-container">
+        <div class="sun-beam-ray ray-1"></div>
+        <div class="sun-beam-ray ray-2"></div>
+        <div class="sun-beam-ray ray-3"></div>
+    </div>
+
     <!-- Main Container -->
     <div class="container">
         <!-- Sun Container - Fixed Position Top Right -->
@@ -149,6 +156,7 @@
                             <input type="date" id="datePicker" class="date-picker">
                             <span class="date-picker-icon">📅</span>
                         </div>
+                        <button id="todayBtn" class="today-btn">📍 Today</button>
                         <button id="copyWeekBtn" class="copy-week-btn">📋 Copy Week</button>
                     </div>
                 </div>
