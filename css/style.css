@@ -93,7 +93,7 @@ body {
     background: linear-gradient(135deg, var(--sky-blue) 0%, var(--mint) 100%);
     border-radius: var(--radius-lg);
     padding: 20px 30px; /* Reduced height */
-    margin-top: 100px; /* Space for fixed sun at top */
+    margin-top: 10px; /* Space for fixed sun at top */
     margin-bottom: var(--spacing-lg);
     box-shadow: 0 4px 15px var(--shadow);
     border: 2px solid var(--border-color);
@@ -146,32 +146,55 @@ body {
     position: relative;
     display: inline-flex;
     align-items: center;
+    height: 48px !important; /* Match button height and force it */
+    min-width: 180px; /* Prevent collapsing */
 }
 
 .date-picker-icon {
     position: absolute;
     right: 15px;
     top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px;
+    transform: translateY(-45%); /* Fine-tuned centering for emoji */
+    font-size: 18px;
     pointer-events: none;
-    z-index: 1;
+    z-index: 10; /* Ensure above input */
 }
 
-.date-picker {
-    padding: 12px 45px 12px 20px; /* Space for icon on right */
-    height: 48px;
-    border: 1px solid var(--mint); /* Lighter mint border */
-    border-radius: 25px;
-    background: rgba(255, 253, 208, 0.5); /* Cream with low opacity for subtle look */
-    color: #4A4A4A; /* Softer gray text instead of dark green */
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-    font-size: 16px;
+/* Consolidated and strengthened styles for Date Picker to resist Flatpickr changes */
+input.date-picker,
+input.date-picker.flatpickr-input,
+input.date-picker.flatpickr-input[readonly] {
+    height: 48px !important;
+    line-height: 46px !important; /* Height minus borders */
+    padding: 0 45px 0 20px !important;
+    border: 1px solid var(--mint) !important;
+    border-radius: 25px !important;
+    background: rgba(255, 253, 208, 0.5) !important;
+    color: #4A4A4A !important;
+    font-family: 'Quicksand', sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 6px var(--shadow) !important;
+    box-sizing: border-box !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    opacity: 1 !important; /* Fix for disabled/readonly opacity */
+    width: 100% !important;
+    margin: 0 !important;
+    display: block !important;
+}
+
+/* Hide native calendar icon */
+.date-picker::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    width: 100%;
+    height: 100%;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 6px var(--shadow);
-    color-scheme: light;
+    appearance: none;
+    display: none; /* Force hide when flatpickr is active */
 }
 
 /* Hide native calendar icon */
@@ -240,7 +263,7 @@ body {
     width: 100%;
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
-    overflow: hidden;
+    overflow: visible; /* Allow arrows to protrude */
 }
 
 /* Schedule Section - Gantt Chart */
@@ -258,7 +281,7 @@ body {
 /* Gantt Wrapper - Contains arrows and gantt container */
 .gantt-wrapper {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     width: 100%;
     max-width: 100%;
     display: flex;
@@ -298,11 +321,11 @@ body {
 }
 
 .gantt-nav-arrow.prev {
-    left: -20px;
+    left: -40px;
 }
 
 .gantt-nav-arrow.next {
-    right: -20px;
+    right: -40px;
 }
 
 .gantt-nav-arrow:hover {
@@ -341,19 +364,22 @@ body {
     flex: 1;
     display: grid;
     grid-template-columns: repeat(var(--gantt-total-hours), 1fr);
-    min-width: 1200px;
+    min-width: 3300px; /* Increased width x1.5 */
     gap: 1px;
 }
 
 .gantt-time-slot {
     padding: var(--spacing-sm);
     text-align: center;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     color: var(--text-primary);
     background: linear-gradient(135deg, var(--sky-blue), var(--mint));
     border-radius: var(--radius-sm);
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Gantt Body */
@@ -365,14 +391,14 @@ body {
 .gantt-row {
     display: flex;
     margin-bottom: var(--spacing-sm);
-    min-height: 70px;
+    min-height: 50px; /* Reduced height */
     position: relative;
 }
 
 .gantt-row-label {
     min-width: 120px;
     width: 120px;
-    padding: var(--spacing-md);
+    padding: var(--spacing-xs);
     background: linear-gradient(135deg, var(--sage-green), var(--mint));
     border-radius: var(--radius-md);
     margin-right: var(--spacing-sm);
@@ -386,12 +412,12 @@ body {
 }
 
 .gantt-row-label .day-name {
-    font-size: 14px;
+    font-size: 16px;
     margin-bottom: 2px;
 }
 
 .gantt-row-label .day-date {
-    font-size: 11px;
+    font-size: 13px;
     opacity: 0.7;
 }
 
@@ -400,8 +426,8 @@ body {
     position: relative;
     background: var(--bg-primary);
     border-radius: var(--radius-md);
-    min-width: 1200px;
-    min-height: 70px;
+    min-width: 3300px; /* Match header min-width */
+    min-height: 50px; /* Match row min-height */
     border: 1px solid var(--border-color);
     border-right: none; /* Remove right border */
     cursor: pointer;
@@ -1087,20 +1113,49 @@ body {
 /* Copy Week Button */
 .copy-week-btn {
     height: 48px;
-    padding: 12px 25px;
+    padding: 0 30px;
     background: linear-gradient(135deg, var(--sage-green), var(--mint));
     border: none;
     border-radius: 25px;
     font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-    font-size: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text-primary); /* Match 'Day' text color */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.copy-week-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px var(--shadow);
+}
+
+/* Today Button */
+.today-btn {
+    height: 48px;
+    padding: 0 30px;
+    background: linear-gradient(135deg, #64B5F6, #2196F3);
+    border: none;
+    border-radius: 25px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
     color: white;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 10px var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
-.copy-week-btn:hover {
+.today-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px var(--shadow);
 }
@@ -1126,43 +1181,96 @@ body {
     height: 80px;
 }
 
-/* Sun core - round yellow gradient */
+/* Sun core - Cartoon Style */
 .sun-core {
     position: absolute;
     width: 60px;
     height: 60px;
     left: 50%;
-    top: 50%;
+    top: 50%; /* Centered */
     transform: translate(-50%, -50%);
-    background: radial-gradient(circle at 30% 30%, #FFEB3B, #FFC107, #FF9800);
+    /* Vibrant gradient with depth */
+    background: radial-gradient(circle at 35% 35%, #FFF59D 0%, #FFC107 40%, #FF9800 100%);
     border-radius: 50%;
-    box-shadow: 0 0 40px rgba(255, 193, 7, 0.6);
+    /* Glossy effect and glow */
+    box-shadow: 
+        inset -3px -3px 8px rgba(230, 81, 0, 0.3), /* Depth shadow */
+        inset 3px 3px 8px rgba(255, 255, 255, 0.6), /* Highlight */
+        0 0 20px rgba(255, 193, 7, 0.5); /* Outer glow */
     z-index: 2;
     transition: all 0.3s ease;
 }
 
-/* Sun rays - hidden by default */
+/* Cute Face for Cartoon Style */
+.sun-core::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    left: 17px;
+    width: 6px;
+    height: 6px;
+    background: #5D4037;
+    border-radius: 50%;
+    box-shadow: 20px 0 0 #5D4037; /* Right eye */
+    animation: blink 4s infinite;
+}
+
+.sun-core::after {
+    content: '';
+    position: absolute;
+    top: 34px;
+    left: 25px;
+    width: 10px;
+    height: 5px;
+    border-bottom: 2px solid #5D4037;
+    border-radius: 0 0 10px 10px; /* Smile */
+}
+
+@keyframes blink {
+    0%, 96%, 100% { transform: scaleY(1); }
+    98% { transform: scaleY(0.1); }
+}
+
+/* Sun rays - visible by default */
 .sun-rays {
     position: absolute;
     width: 100%;
     height: 100%;
     top: 0;
     left: 0;
-    opacity: 0;
-    transform: scale(0.5);
+    opacity: 1;
+    transform: scale(1);
     transition: all 0.4s ease-out;
+    /* No rotation by default */
 }
 
-/* Individual ray */
+/* Rotate only when active */
+.sun-container.active .sun-rays {
+    animation: sunRotate 20s linear infinite;
+}
+
+@keyframes sunRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Individual ray - Beautiful curved petal style */
 .ray {
     position: absolute;
-    width: 8px;
-    height: 25px;
-    background: linear-gradient(to top, #FFC107, #FFEB3B, transparent);
-    border-radius: 4px;
+    width: 14px;
+    height: 32px;
+    background: linear-gradient(to top, #FF9800 0%, #FFC107 60%, #FFF176 100%);
+    border-radius: 50% 50% 20% 20%; /* Petal/Flame shape */
     left: 50%;
     top: 50%;
-    transform-origin: center 40px;
+    transform-origin: center 45px; /* Pivot point further out */
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
+    border: none;
+}
+
+/* Remove the inner triangle hack */
+.ray::after {
+    display: none;
 }
 
 /* 8 rays evenly distributed */
@@ -1902,5 +2010,78 @@ body {
 .pine-tree.tree-large {
     width: 120px;
     height: 160px;
+}
+
+/* ===================================
+   ☀️ Sun Beam Animation
+   =================================== */
+
+.sun-beam-container {
+    position: fixed;
+    top: 60px; /* Center of sun (20px top + 40px half-height) */
+    right: 80px; /* Center of sun (40px right + 40px half-width) */
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: visible;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.5s ease;
+}
+
+.sun-beam-container.active {
+    opacity: 1; /* Show when active */
+}
+
+.sun-beam-ray {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 200vmax; /* Long enough to cover screen */
+    width: 100px; /* Width of the beam */
+    /* Softer gradient */
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 215, 0, 0.25), transparent);
+    transform-origin: top center;
+    opacity: 0.6;
+    filter: blur(12px); /* Increased blur for softness */
+    border-radius: 50%;
+    /* Center the ray horizontally relative to the container point */
+    margin-left: -50px; /* Half of width */
+}
+
+.ray-1 { 
+    --angle: 45deg; 
+    width: 150px;
+    margin-left: -75px; /* Half of width */
+    animation: sunBeamPulse 4s ease-in-out infinite alternate;
+    transform: rotate(var(--angle));
+}
+
+.ray-2 { 
+    --angle: 30deg; 
+    width: 80px;
+    margin-left: -40px; /* Half of width */
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), rgba(255, 235, 59, 0.3), transparent);
+    animation: sunBeamPulse 5s ease-in-out 1s infinite alternate;
+    transform: rotate(var(--angle));
+}
+
+.ray-3 { 
+    --angle: 60deg; 
+    width: 120px;
+    margin-left: -60px; /* Half of width */
+    animation: sunBeamPulse 6s ease-in-out 2s infinite alternate;
+    transform: rotate(var(--angle));
+}
+
+@keyframes sunBeamPulse {
+    0% {
+        opacity: 0.5;
+        transform: rotate(var(--angle)) scaleY(0.95);
+    }
+    100% {
+        opacity: 0.8;
+        transform: rotate(var(--angle)) scaleY(1.05);
+    }
 }
 

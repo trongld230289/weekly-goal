@@ -3,7 +3,7 @@
 // ===================================
 
 // Google Sheets API Configuration
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPFg_n67nunmxuh31l8KCX8-THLwtWOE7K1AmblpqXKJXs_WFvpzUYUWB43fgybnXY/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7xY4A_zxyxHNHpFymfMTHMhY4fxXkAinhuurGn7hqBoi4CREMbxevWlN1KYJyCUu3/exec';
 
 const Storage = {
     // Keys for localStorage
@@ -279,11 +279,22 @@ const Storage = {
      */
     async loadScheduleFromSheet(weekStart) {
         try {
-            const url = `${GOOGLE_SCRIPT_URL}?action=read&week_start=${weekStart}`;
-            const response = await fetch(url);
+            // Use POST for read as well to avoid caching and ensure consistent CORS handling
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8'
+                },
+                body: JSON.stringify({
+                    action: 'read',
+                    week_start: weekStart
+                })
+            });
             const result = await response.json();
             
             if (result.success) {
+                console.log('📊 Raw data from sheet:', result.data);
+                if (result.debug) console.log('🐞 Debug info:', result.debug);
                 return result.data;
             }
             return [];
@@ -307,10 +318,11 @@ const Storage = {
      */
     async createTaskInSheet(taskData) {
         try {
+            // Use text/plain to avoid CORS preflight issues with Google Apps Script
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain;charset=utf-8'
                 },
                 body: JSON.stringify({
                     action: 'create',
@@ -334,7 +346,7 @@ const Storage = {
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain;charset=utf-8'
                 },
                 body: JSON.stringify({
                     action: 'update',
@@ -358,7 +370,7 @@ const Storage = {
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain;charset=utf-8'
                 },
                 body: JSON.stringify({
                     action: 'delete',
@@ -369,6 +381,29 @@ const Storage = {
         } catch (error) {
             console.error('Delete from sheet error:', error);
             return { success: false };
+        }
+    },
+
+    /**
+     * Get list of all weeks that have data in Google Sheets
+     * @returns {Promise<Array>} List of week start dates (dd/MM/yyyy)
+     */
+    async getAvailableWeeksFromSheet() {
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8'
+                },
+                body: JSON.stringify({
+                    action: 'getAvailableWeeks'
+                })
+            });
+            const result = await response.json();
+            return result.success ? result.weeks : [];
+        } catch (error) {
+            console.error('Get available weeks error:', error);
+            return [];
         }
     },
 
