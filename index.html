@@ -128,10 +128,15 @@
                 <button id="prevWeek" class="nav-btn">← Prev</button>
                 <div class="week-info">
                     <h1 id="weekTitle">WEEK 1 - Week of: January 5</h1>
-                    <input type="date" id="datePicker" class="date-picker">
+                    <div class="date-picker-wrapper">
+                        <span class="date-picker-icon">📅</span>
+                        <input type="date" id="datePicker" class="date-picker">
+                    </div>
                     <div class="week-actions">
                         <button id="copyWeekBtn" class="copy-week-btn">📋 Copy Week</button>
-                        <button id="toggleStandardBtn" class="toggle-standard-btn">⭐ Mark as Standard</button>
+                        <button id="toggleStandardBtn" class="toggle-standard-btn" title="Mark as standard for copy week">
+                            <span class="sun-icon">○</span>
+                        </button>
                     </div>
                 </div>
                 <button id="nextWeek" class="nav-btn">Next →</button>

@@ -499,7 +499,25 @@ const App = {
             this.flatpickrInstance.setDate(this.currentWeek, false);
         }
         
+        // Update standard button icon
+        this.updateStandardButtonIcon();
+        
         Storage.save(Storage.KEYS.CURRENT_WEEK, this.currentWeek.toISOString());
+    },
+    
+    // Update standard button icon based on current week
+    updateStandardButtonIcon() {
+        const sunIcon = document.querySelector('.sun-icon');
+        if (!sunIcon) return;
+        
+        const isStandard = this.isStandardWeek();
+        if (isStandard) {
+            sunIcon.textContent = '☀️';
+            sunIcon.classList.add('active');
+        } else {
+            sunIcon.textContent = '○';
+            sunIcon.classList.remove('active');
+        }
     },
 
     // Initialize Flatpickr
@@ -923,19 +941,33 @@ const App = {
             standardWeeks.splice(index, 1);
             alert('✅ Week unmarked as standard template');
         } else {
-            // Add to standard weeks
+            // Remove all other standard weeks (only one allowed)
+            standardWeeks.splice(0, standardWeeks.length);
+            // Add this week to standard weeks
             standardWeeks.push(weekKey);
             alert('⭐ Week marked as standard template');
         }
         
         Storage.save('standardWeeks', standardWeeks);
         this.updateWeekDisplay();
+        this.updateStandardButtonIcon();
     },
     
     // Check if current week is standard
     isStandardWeek(weekKey) {
         const standardWeeks = Storage.load('standardWeeks', []);
         return standardWeeks.includes(weekKey || this.getWeekKey(this.currentWeek));
+    },
+    
+    /**
+     * Parse a week key (ISO date string) as a Date object with timezone safety
+     * @param {string} weekKey - ISO date string in format 'YYYY-MM-DD'
+     * @returns {Date} Date object with time set to midnight local time
+     * @description Appends 'T00:00:00' to ensure consistent parsing as local midnight
+     *              rather than UTC midnight, avoiding timezone-related date shifts
+     */
+    parseWeekKeyAsDate(weekKey) {
+        return new Date(weekKey + 'T00:00:00');
     },
     
     // Open copy week modal
@@ -945,10 +977,24 @@ const App = {
         const history = Storage.load('weekHistory', {});
         const standardWeeks = Storage.load('standardWeeks', []);
         const currentWeekKey = this.getWeekKey(this.currentWeek);
+        // Create a new date object to avoid mutating the original
+        const currentMonday = new Date(this.getMonday(this.currentWeek));
+        // Reset time to midnight for date-only comparison
+        currentMonday.setHours(0, 0, 0, 0);
         
-        // Get weeks that have data
+        // Get weeks that have data and are in the past
         const weeksWithData = Object.keys(history)
-            .filter(key => key !== currentWeekKey && history[key] && Object.keys(history[key]).length > 0)
+            .filter(key => {
+                // Exclude current week
+                if (key === currentWeekKey) return false;
+                
+                // Check if week has data
+                if (!history[key] || Object.keys(history[key]).length === 0) return false;
+                
+                // Check if week is in the past (date-only comparison)
+                const weekDate = this.parseWeekKeyAsDate(key);
+                return weekDate < currentMonday;
+            })
             .sort()
             .reverse();
         
@@ -958,7 +1004,7 @@ const App = {
         let standardWeekKey = null;
         
         weeksWithData.forEach(weekKey => {
-            const date = new Date(weekKey);
+            const date = this.parseWeekKeyAsDate(weekKey);
             const weekNum = this.getWeekNumber(date);
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -980,9 +1026,9 @@ const App = {
         });
         
         if (weeksWithData.length === 0) {
-            selector.innerHTML = '<option value="">No weeks with data available</option>';
+            selector.innerHTML = '<option value="">No past weeks with data available</option>';
         } else if (standardWeekKey) {
-            // Default to standard week if exists
+            // Auto-select standard week if exists
             selector.value = standardWeekKey;
         }
         
