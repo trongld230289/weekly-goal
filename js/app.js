@@ -607,9 +607,18 @@ const App = {
 
     // Setup all event listeners
     setupEventListeners() {
-        // Week navigation
-        document.getElementById('prevWeek').addEventListener('click', () => this.prevWeek());
-        document.getElementById('nextWeek').addEventListener('click', () => this.nextWeek());
+        // Week navigation - both old buttons (hidden) and new arrows
+        const prevWeekBtn = document.getElementById('prevWeek');
+        const nextWeekBtn = document.getElementById('nextWeek');
+        if (prevWeekBtn) prevWeekBtn.addEventListener('click', () => this.prevWeek());
+        if (nextWeekBtn) nextWeekBtn.addEventListener('click', () => this.nextWeek());
+        
+        // New Gantt arrow navigation
+        const prevWeekArrow = document.getElementById('prevWeekArrow');
+        const nextWeekArrow = document.getElementById('nextWeekArrow');
+        if (prevWeekArrow) prevWeekArrow.addEventListener('click', () => this.prevWeek());
+        if (nextWeekArrow) nextWeekArrow.addEventListener('click', () => this.nextWeek());
+        
         // Note: Date picker change is now handled by Flatpickr onChange callback
 
         // Modal controls
@@ -970,7 +979,6 @@ const App = {
     openCopyWeekModal() {
         const modal = document.getElementById('copyWeekModal');
         const selector = document.getElementById('weekSelector');
-        const history = Storage.load('weekHistory', {});
         const standardWeeks = Storage.load('standardWeeks', []);
         const currentWeekKey = this.getWeekKey(this.currentWeek);
         // Create a new date object to avoid mutating the original
@@ -978,21 +986,31 @@ const App = {
         // Reset time to midnight for date-only comparison
         currentMonday.setHours(0, 0, 0, 0);
         
-        // Get weeks that have data and are in the past
-        const weeksWithData = Object.keys(history)
-            .filter(key => {
+        // Scan all localStorage keys for schedule data
+        const weeksWithData = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            // Look for keys matching pattern: schedule_YYYY-MM-DD
+            if (key && key.startsWith('schedule_')) {
+                const weekKey = key.replace('schedule_', '');
+                
                 // Exclude current week
-                if (key === currentWeekKey) return false;
+                if (weekKey === currentWeekKey) continue;
                 
                 // Check if week has data
-                if (!history[key] || Object.keys(history[key]).length === 0) return false;
+                const scheduleData = Storage.load(key, {});
+                if (!scheduleData || Object.keys(scheduleData).length === 0) continue;
                 
                 // Check if week is in the past (date-only comparison)
-                const weekDate = this.parseWeekKeyAsDate(key);
-                return weekDate < currentMonday;
-            })
-            .sort()
-            .reverse();
+                const weekDate = this.parseWeekKeyAsDate(weekKey);
+                if (weekDate < currentMonday) {
+                    weeksWithData.push(weekKey);
+                }
+            }
+        }
+        
+        // Sort weeks in reverse chronological order (most recent first)
+        weeksWithData.sort().reverse();
         
         // Populate week selector with available weeks
         selector.innerHTML = '<option value="">Select a week...</option>';
@@ -1011,7 +1029,7 @@ const App = {
             
             const option = document.createElement('option');
             option.value = weekKey;
-            option.textContent = `Week ${weekNum} - ${formatted}`;
+            option.textContent = `Week ${weekNum} - ${formatted}${isStandard ? ' ⭐' : ''}`;
             selector.appendChild(option);
             
             // Remember the first standard week for default selection
@@ -1046,10 +1064,10 @@ const App = {
             return;
         }
         
-        const history = Storage.load('weekHistory', {});
-        const scheduleData = history[selectedWeek];
+        // Load schedule data from the correct storage key
+        const scheduleData = Storage.load(`schedule_${selectedWeek}`, {});
         
-        if (scheduleData) {
+        if (scheduleData && Object.keys(scheduleData).length > 0) {
             // Copy the schedule to current week
             this.schedule = JSON.parse(JSON.stringify(scheduleData));
             this.saveData();
@@ -1057,6 +1075,8 @@ const App = {
             this.generateScheduleGrid();
             this.closeCopyWeekModal();
             alert('✅ Week plan copied successfully!');
+        } else {
+            alert('⚠️ No schedule data found for the selected week');
         }
     }
 };

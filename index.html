@@ -122,36 +122,36 @@
 
     <!-- Main Container -->
     <div class="container">
+        <!-- Sun Container - Fixed Position Top Right -->
+        <div class="sun-container" id="toggleStandardBtn" title="Mark as standard for copy week">
+            <div class="sun">
+                <div class="sun-core"></div>
+                <div class="sun-rays">
+                    <div class="ray"></div>
+                    <div class="ray"></div>
+                    <div class="ray"></div>
+                    <div class="ray"></div>
+                    <div class="ray"></div>
+                    <div class="ray"></div>
+                    <div class="ray"></div>
+                    <div class="ray"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Header -->
         <header class="header">
             <div class="week-nav">
-                <button id="prevWeek" class="nav-btn">← Prev</button>
                 <div class="week-info">
                     <h1 id="weekTitle">WEEK 1 - Week of: January 5</h1>
-                    <div class="date-picker-wrapper">
-                        <span class="date-picker-icon">📅</span>
-                        <input type="date" id="datePicker" class="date-picker">
-                    </div>
                     <div class="week-actions">
-                        <button id="copyWeekBtn" class="copy-week-btn">📋 Copy Week</button>
-                        <div class="sun-container" id="toggleStandardBtn" title="Mark as standard for copy week">
-                            <div class="sun">
-                                <div class="sun-core"></div>
-                                <div class="sun-rays">
-                                    <div class="ray"></div>
-                                    <div class="ray"></div>
-                                    <div class="ray"></div>
-                                    <div class="ray"></div>
-                                    <div class="ray"></div>
-                                    <div class="ray"></div>
-                                    <div class="ray"></div>
-                                    <div class="ray"></div>
-                                </div>
-                            </div>
+                        <div class="date-picker-wrapper">
+                            <input type="date" id="datePicker" class="date-picker">
+                            <span class="date-picker-icon">📅</span>
                         </div>
+                        <button id="copyWeekBtn" class="copy-week-btn">📋 Copy Week</button>
                     </div>
                 </div>
-                <button id="nextWeek" class="nav-btn">Next →</button>
             </div>
         </header>
 
@@ -160,6 +160,10 @@
             <!-- Schedule Grid - Gantt Chart Style -->
             <div class="schedule-section">
                 <div class="gantt-container">
+                    <!-- Navigation Arrows -->
+                    <button class="gantt-nav-arrow prev" id="prevWeekArrow" title="Previous Week">◀</button>
+                    <button class="gantt-nav-arrow next" id="nextWeekArrow" title="Next Week">▶</button>
+                    
                     <!-- Time Ruler Header -->
                     <div class="gantt-header" id="ganttHeader">
                         <div class="gantt-row-label-spacer">Day</div>
