@@ -1190,6 +1190,16 @@ input.date-picker.flatpickr-input[readonly] {
     .goals-section {
         flex-direction: column;
     }
+    
+    .week-label {
+        display: none !important;
+    }
+    .mobile-dash {
+        display: inline !important;
+    }
+    .week-info h1 {
+        font-size: 18px !important; /* Smaller size on mobile */
+    }
 }
 
 @media (max-width: 768px) {
@@ -1273,10 +1283,15 @@ input.date-picker.flatpickr-input[readonly] {
     
     /* Move sun out of the way on small screens */
     .sun-container {
-        top: 5px;
-        right: 5px;
+        top: 5px !important;
+        right: 5px !important;
         transform: scale(0.6); /* Make it smaller */
-        z-index: 1; /* Ensure it's behind header content if they overlap */
+        z-index: 20; /* Ensure it's reachable */
+    }
+
+    /* Push header down on mobile to prevent sun overlap */
+    .header {
+        padding-top: 10px;
     }
 }
 

@@ -790,8 +790,8 @@ const App = {
         const month = String(monday.getMonth() + 1).padStart(2, '0');
         const year = monday.getFullYear();
         
-        document.getElementById('weekTitle').textContent = 
-            `WEEK ${weekNum} - Week of: ${day}/${month}/${year}`;
+        document.getElementById('weekTitle').innerHTML = 
+            `WEEK ${weekNum} <span class="week-label">- Week of:</span> <span class="mobile-dash" style="display:none">-</span> ${day}/${month}/${year}`;
         
         // Update Flatpickr date if initialized
         if (this.flatpickrInstance) {
