@@ -78,6 +78,86 @@ body {
     padding-bottom: 250px; /* Increase bottom padding to show full pine trees when scrolled to bottom */
 }
 
+/* Clear Week Button (Bomb) */
+@keyframes pulse-grow {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.clear-week-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    animation: pulse-grow 2s infinite ease-in-out;
+}
+
+.clear-week-btn:hover {
+    animation: none; /* Stop pulse on hover */
+    transform: scale(1.3) rotate(10deg);
+    opacity: 1;
+    background: rgba(255, 0, 0, 0.1);
+}
+
+/* Firework Particles */
+.firework-particle {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+/* Boom Animation */
+@keyframes boom-shake {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    10% { transform: translate(-5px, -5px) rotate(-5deg); }
+    20% { transform: translate(5px, 5px) rotate(5deg); }
+    30% { transform: translate(-5px, 5px) rotate(-5deg); }
+    40% { transform: translate(5px, -5px) rotate(5deg); }
+    50% { transform: translate(-5px, -5px) rotate(-5deg); }
+    60% { transform: translate(5px, 5px) rotate(5deg); }
+    70% { transform: translate(-5px, 5px) rotate(-5deg); }
+    80% { transform: translate(5px, -5px) rotate(5deg); }
+    90% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes boom-flash {
+    0% { background-color: transparent; }
+    50% { background-color: rgba(255, 255, 255, 0.8); }
+    100% { background-color: transparent; }
+}
+
+.boom-effect {
+    animation: boom-shake 0.8s cubic-bezier(.36,.07,.19,.97) both;
+    position: relative;
+}
+
+.boom-effect::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: white;
+    animation: boom-flash 0.8s ease-out;
+    pointer-events: none;
+    z-index: 100;
+    border-radius: var(--radius-lg);
+}
+
 /* Container */
 .container {
     max-width: 100%;
@@ -345,6 +425,8 @@ input.date-picker.flatpickr-input[readonly] {
     z-index: 20;
     background: var(--bg-secondary);
     margin-bottom: var(--spacing-sm);
+    width: fit-content; /* Ensure header takes full width */
+    min-width: 100%;
 }
 
 .gantt-row-label-spacer {
@@ -360,6 +442,9 @@ input.date-picker.flatpickr-input[readonly] {
     justify-content: center;
     margin-right: var(--spacing-sm);
     box-shadow: 0 2px 8px var(--shadow);
+    position: sticky;
+    left: 0;
+    z-index: 30;
 }
 
 .gantt-timeline {
@@ -395,6 +480,8 @@ input.date-picker.flatpickr-input[readonly] {
     margin-bottom: var(--spacing-sm);
     min-height: 50px; /* Reduced height */
     position: relative;
+    width: fit-content; /* Ensure row takes full width of content */
+    min-width: 100%;
 }
 
 .gantt-row-label {
@@ -411,6 +498,9 @@ input.date-picker.flatpickr-input[readonly] {
     font-weight: 700;
     color: var(--text-primary);
     box-shadow: 0 2px 8px var(--shadow);
+    position: sticky;
+    left: 0;
+    z-index: 25;
 }
 
 .gantt-row-label .day-name {
@@ -474,7 +564,7 @@ input.date-picker.flatpickr-input[readonly] {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
     display: flex;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
     text-overflow: ellipsis;
     white-space: nowrap;
     z-index: 5;
@@ -484,6 +574,41 @@ input.date-picker.flatpickr-input[readonly] {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     transform: translateY(-1px);
     z-index: 10;
+}
+
+.gantt-bar .delete-icon-btn {
+    position: absolute;
+    top: -7px;
+    right: -5px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    color: #ff4757;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 25;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    line-height: 1;
+    font-family: sans-serif;
+    border: 1px solid rgba(0,0,0,0.1);
+    padding-top: 1px;
+}
+
+.gantt-bar:hover .delete-icon-btn {
+    opacity: 1;
+}
+
+.gantt-bar .delete-icon-btn:hover {
+    transform: scale(1.2);
+    color: #ff0000;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
 }
 
 .gantt-bar.dragging {
