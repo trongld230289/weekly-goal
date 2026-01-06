@@ -1746,8 +1746,25 @@ input.date-picker.flatpickr-input[readonly] {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 0; /* Behind all content */
+    z-index: 0; /* Background layer - behind content */
     overflow: hidden;
+}
+
+.animated-foreground {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999; /* Foreground layer - above everything */
+    overflow: hidden;
+}
+
+/* Force butterflies and sparkles to be Fixed position to break out of container if necessary */
+.butterfly, .sparkle {
+    position: fixed !important; 
+    z-index: 99 !important; /* Very high z-index to stay on top */
 }
 
 /* Clouds - Larger and More Visible */
@@ -1911,6 +1928,7 @@ input.date-picker.flatpickr-input[readonly] {
     position: absolute;
     opacity: 0.8;
     transition: opacity 0.5s ease;
+    z-index: 20; /* Above container content (z-index 10) */
 }
 
 .butterfly-1 {
@@ -2078,6 +2096,7 @@ input.date-picker.flatpickr-input[readonly] {
     color: #F4E04D;
     animation: twinkleSparkle 3s ease-in-out infinite;
     transition: opacity 0.5s ease;
+    z-index: 20; /* Above container content */
 }
 
 .sparkle-1 {
@@ -2097,6 +2116,18 @@ input.date-picker.flatpickr-input[readonly] {
     animation-delay: 2s;
 }
 
+.sparkle-4 {
+    top: 15%;
+    left: 15%;
+    animation-delay: 1.5s;
+}
+
+.sparkle-5 {
+    top: 70%;
+    right: 15%;
+    animation-delay: 2.5s;
+}
+
 @keyframes twinkleSparkle {
     0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
     50% { opacity: 0.7; transform: scale(1.2) rotate(180deg); }
@@ -2104,54 +2135,47 @@ input.date-picker.flatpickr-input[readonly] {
 
 /* Falling Leaves */
 .falling-leaf {
-    position: absolute;
+    position: fixed;
+    top: -10%;
     font-size: 20px;
-    animation: fallLeaf 12s ease-in infinite;
-    transition: opacity 0.5s ease;
+    z-index: 20; /* Above content */
+    opacity: 0.7;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
 }
 
-.falling-leaf-1 {
-    left: 15%;
-    animation-delay: 0s;
+.falling-leaf-1 { left: 10%; animation: fallLeaf1 15s linear infinite; }
+.falling-leaf-2 { left: 30%; animation: fallLeaf2 20s linear infinite; animation-delay: 5s; }
+.falling-leaf-3 { left: 50%; animation: fallLeaf3 18s linear infinite; animation-delay: 2s; }
+.falling-leaf-4 { left: 70%; animation: fallLeaf4 25s linear infinite; animation-delay: 8s; }
+.falling-leaf-5 { left: 90%; animation: fallLeaf5 22s linear infinite; animation-delay: 12s; }
+
+@keyframes fallLeaf1 {
+    0% { top: -10%; transform: rotate(0deg) translateX(0); }
+    100% { top: 110%; transform: rotate(360deg) translateX(50px); }
 }
 
-.falling-leaf-2 {
-    left: 35%;
-    animation-delay: 4s;
+@keyframes fallLeaf2 {
+    0% { top: -10%; transform: rotate(0deg) translateX(0); }
+    100% { top: 110%; transform: rotate(-180deg) translateX(-50px); }
 }
 
-.falling-leaf-3 {
-    left: 55%;
-    animation-delay: 8s;
+@keyframes fallLeaf3 {
+    0% { top: -10%; transform: rotate(0deg) translateX(0); }
+    100% { top: 110%; transform: rotate(90deg) translateX(30px); }
 }
 
-.falling-leaf-4 {
-    left: 75%;
-    animation-delay: 2s;
+@keyframes fallLeaf4 {
+    0% { top: -10%; transform: rotate(0deg) translateX(0); }
+    100% { top: 110%; transform: rotate(-90deg) translateX(-30px); }
 }
 
-.falling-leaf-5 {
-    left: 90%;
-    animation-delay: 6s;
+@keyframes fallLeaf5 {
+    0% { top: -10%; transform: rotate(0deg) translateX(0); }
+    100% { top: 110%; transform: rotate(180deg) translateX(40px); }
 }
 
-@keyframes fallLeaf {
-    0% {
-        top: -30px;
-        opacity: 0;
-        transform: rotate(0deg);
-    }
-    10% {
-        opacity: 0.8;
-    }
-    100% {
-        top: 110vh;
-        opacity: 0;
-        transform: rotate(720deg) translateX(100px);
-    }
-}
-
-/* Decorative Vines */
+/* Vines - Hanging from corners */
 .vine {
     position: fixed;
     width: 60px;
