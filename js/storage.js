@@ -3,7 +3,7 @@
 // ===================================
 
 // Google Sheets API Configuration
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxRkD0EdYNf6BSDQMNKdd_S4szmPqZkMn0ssh9wyC1QKOB0efFsF-1NbV7xLsI180t7/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwIbIw4N2cqnx8AV7jDG3EAR7DfuJIxvZGruElOGsyf7D_tjcFm1DxDuoyJd7UKlDBp/exec';
 
 const Storage = {
     // Keys for localStorage
@@ -332,6 +332,30 @@ const Storage = {
             return await response.json();
         } catch (error) {
             console.error('Create in sheet error:', error);
+            return { success: false };
+        }
+    },
+
+    /**
+     * Bulk create tasks in Google Sheets
+     * @param {Array} tasks - Array of task objects
+     * @returns {Promise<Object>} Response object
+     */
+    async bulkCreateTasksInSheet(tasks) {
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8'
+                },
+                body: JSON.stringify({
+                    action: 'bulkCreate',
+                    tasks: tasks
+                })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Bulk create in sheet error:', error);
             return { success: false };
         }
     },

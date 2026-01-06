@@ -1548,8 +1548,8 @@ const App = {
             if (scheduleData && Object.keys(scheduleData).length > 0) {
                 const currentWeekKey = this.getWeekKey(this.currentWeek);
                 
-                // We need to save each item to the Sheet for the current week
-                const promises = [];
+                // Prepare tasks for bulk creation
+                const tasksToCreate = [];
                 
                 for (const [key, item] of Object.entries(scheduleData)) {
                     // key is "Day-HH:MM" e.g. "Monday-05:00"
@@ -1563,7 +1563,7 @@ const App = {
                     const endMin = endMinutes % 60;
                     const endTime = `${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
                     
-                    const taskData = {
+                    tasksToCreate.push({
                         week_start: currentWeekKey,
                         day: day,
                         task: item.text,
@@ -1571,12 +1571,11 @@ const App = {
                         end_time: endTime,
                         color: item.color || '',
                         category: item.category
-                    };
-                    
-                    promises.push(Storage.createTaskInSheet(taskData));
+                    });
                 }
                 
-                await Promise.all(promises);
+                // Send bulk request
+                await Storage.bulkCreateTasksInSheet(tasksToCreate);
                 
                 // Reload current week data
                 await this.loadData();

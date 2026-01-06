@@ -43,6 +43,9 @@ function doPost(e) {
   } else if (action === 'delete') {
     const sheet = ss.getSheetByName(SHEET_NAME);
     return deleteData(sheet, data);
+  } else if (action === 'bulkCreate') {
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    return bulkCreateData(sheet, data.tasks);
   } else if (action === 'getAvailableWeeks') {
     const sheet = ss.getSheetByName(SHEET_NAME);
     return getAvailableWeeks(sheet);
@@ -184,6 +187,44 @@ function createData(sheet, data) {
   sheet.getRange(rowIndex, 1).setNumberFormat('dd/MM/yyyy');
   
   return ContentService.createTextOutput(JSON.stringify({ success: true, message: 'Created', rowIndex: rowIndex }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function bulkCreateData(sheet, tasks) {
+  if (!tasks || tasks.length === 0) {
+    return ContentService.createTextOutput(JSON.stringify({ success: true, message: 'No tasks to create' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  const timezone = sheet.getParent().getSpreadsheetTimeZone();
+  const rows = [];
+  
+  tasks.forEach(task => {
+    let weekStartObj = task.week_start;
+    if (typeof weekStartObj === 'string') {
+      weekStartObj = Utilities.parseDate(task.week_start, timezone, 'dd/MM/yyyy');
+    }
+    
+    rows.push([
+      weekStartObj,
+      task.day,
+      task.task,
+      task.start_time,
+      task.end_time,
+      task.color,
+      task.category
+    ]);
+  });
+  
+  if (rows.length > 0) {
+    const lastRow = sheet.getLastRow();
+    // getRange(row, column, numRows, numColumns)
+    sheet.getRange(lastRow + 1, 1, rows.length, rows[0].length).setValues(rows);
+    // Format date column
+    sheet.getRange(lastRow + 1, 1, rows.length, 1).setNumberFormat('dd/MM/yyyy');
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({ success: true, message: 'Bulk Created', count: rows.length }))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
