@@ -380,7 +380,7 @@ const App = {
         
         // Duration Logic
         const [startHour] = time.split(':').map(Number);
-        const maxHours = 23 - startHour; // Max end time is 23:00
+        const maxHours = 24 - startHour; // Max end time is 24:00
         
         const durationHoursSelect = document.getElementById('durationHours');
         durationHoursSelect.innerHTML = '';
